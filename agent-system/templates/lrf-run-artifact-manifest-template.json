@@ -1,0 +1,112 @@
+{
+  "run_id": "",
+  "goal_id": "",
+  "created_at": "",
+  "status": "draft_template | blocked | ready_for_review | complete",
+  "source_docs": [
+    "docs/research/lrf/trade-hypothesis-protocol.md",
+    "docs/research/lrf/blind-validation-protocol.md",
+    "docs/research/lrf/ledger-requirements.md",
+    "docs/research/lrf/analysis-workflow.md",
+    "docs/research/lrf/blocker-taxonomy.md"
+  ],
+  "workflow_ref": {
+    "path": "agent-system/workflows/lrf-blind-trade-hypothesis-research-workflow.md",
+    "hash": ""
+  },
+  "skill_refs": [
+    {
+      "role": "hypothesis_writer",
+      "path": "agent-system/skills/write-lrf-blind-trade-hypothesis.md",
+      "hash": ""
+    },
+    {
+      "role": "challenge_writer",
+      "path": "agent-system/skills/challenge-lrf-trade-hypothesis.md",
+      "hash": ""
+    },
+    {
+      "role": "discipline_reviewer",
+      "path": "agent-system/skills/review-lrf-blind-discipline.md",
+      "hash": ""
+    }
+  ],
+  "template_refs": [
+    {
+      "artifact": "answer_free_packet",
+      "path": "agent-system/templates/lrf-answer-free-packet-template.json",
+      "hash": ""
+    },
+    {
+      "artifact": "blind_hypothesis_output",
+      "path": "agent-system/templates/lrf-blind-hypothesis-output-template.json",
+      "hash": ""
+    },
+    {
+      "artifact": "challenge_output",
+      "path": "agent-system/templates/lrf-challenge-output-template.json",
+      "hash": ""
+    },
+    {
+      "artifact": "reviewer_discipline_output",
+      "path": "agent-system/templates/lrf-reviewer-discipline-output-template.json",
+      "hash": ""
+    }
+  ],
+  "input_artifacts": [
+    {
+      "artifact_type": "client_mirror_report | app_endpoint_export | owner_bounded_referent | other",
+      "path": "",
+      "hash": "",
+      "notes": ""
+    }
+  ],
+  "output_artifacts": [
+    {
+      "artifact_type": "answer_free_packet | blind_hypothesis_output | challenge_output | reviewer_discipline_output | synthesis | audit | summary",
+      "path": "",
+      "hash": "",
+      "frozen": false,
+      "notes": ""
+    }
+  ],
+  "hashes": {
+    "manifest_hash": "",
+    "input_hashes": {},
+    "output_hashes": {},
+    "source_material_hashes": {}
+  },
+  "freeze_points": {
+    "packet_frozen_at": "",
+    "hypothesis_frozen_at": "",
+    "challenge_frozen_at": "",
+    "reviewer_frozen_at": "",
+    "freeze_notes": []
+  },
+  "blockers": [
+    {
+      "blocker_classification": "APP_BLOCKED | DATA_BLOCKED | R_APP_USAGE_GAP | R_METHOD_GAP | OWNER_POLICY_GAP | BLOCKER",
+      "reason": "",
+      "evidence_refs": [],
+      "required_next_action": ""
+    }
+  ],
+  "forbidden_work_attestation": {
+    "template_only": true,
+    "does_not_authorize_market_run": true,
+    "does_not_authorize_reveal": true,
+    "does_not_authorize_judge_or_evaluator": true,
+    "does_not_authorize_tool_execution": true,
+    "does_not_authorize_research_packet": true,
+    "does_not_authorize_app_work": true,
+    "no_edge_claim": true,
+    "no_can_trade_claim": true,
+    "no_product_go_claim": true,
+    "no_performance_claim": true
+  },
+  "next_review_recommendation": {
+    "send_to_c_review_before_next_phase": true,
+    "recommended_next_goal": "",
+    "notes": ""
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "task_id": "",
+  "role_id": "write_lrf_blind_trade_hypothesis",
+  "input_packet_ref": "",
+  "input_packet_hash": "",
+  "output_created_at": "",
+  "observed_fact": [
+    {
+      "fact_id": "",
+      "statement": "",
+      "source_refs": [],
+      "confidence": "high | medium | low | blocked"
+    }
+  ],
+  "hypothesis": {
+    "hypothesis_id": "",
+    "statement": "",
+    "scope": "single_case | bounded_window | blocked",
+    "status": "candidate | ambiguous | blocked",
+    "not_a_trade_instruction": true
+  },
+  "premise": {
+    "statement": "",
+    "evidence_refs": [],
+    "missing_evidence": []
+  },
+  "setup_context": {
+    "lrf_objects": [],
+    "key_zone_refs": [],
+    "range_refs": [],
+    "liquidity_context": "",
+    "ob_context": "",
+    "fvg_context": "",
+    "orderflow_context": "",
+    "missing_context": []
+  },
+  "entry_trigger": {
+    "rule": "",
+    "known_at_refs": [],
+    "trigger_type": "acceptance | rejection | retest | sweep_reclaim | displacement | no_entry | blocked",
+    "required_confirmation": [],
+    "missing_confirmation": []
+  },
+  "entry_price_rule": {
+    "rule": "",
+    "price_source": "bar_close | range_boundary | zone_mid | retest_level | not_defined | blocked",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "invalidation_condition": {
+    "rule": "",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "stop_rule": {
+    "rule": "",
+    "stop_reference": "range_extreme | sweep_extreme | zone_boundary | structural_invalid | not_defined | blocked",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "exit_or_target_rule": {
+    "rule": "",
+    "target_reference": "opposite_range | liquidity_pool | measured_move | time_stop | not_defined | blocked",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "cancel_condition": {
+    "rule": "",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "no_entry_condition": {
+    "rule": "",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "time_stop": {
+    "rule": "",
+    "max_bars": null,
+    "max_duration": "",
+    "source_refs": [],
+    "missing_evidence": []
+  },
+  "cost_model_ref": {
+    "model_ref": "",
+    "status": "provided | missing | blocked",
+    "notes": ""
+  },
+  "evidence_refs": {
+    "packet_refs": [],
+    "observed_fact_refs": [],
+    "missing_refs": []
+  },
+  "missing_evidence": [],
+  "blocker_classification": {
+    "class": "none | APP_BLOCKED | DATA_BLOCKED | R_APP_USAGE_GAP | R_METHOD_GAP | OWNER_POLICY_GAP",
+    "reason": "",
+    "required_next_evidence": []
+  },
+  "confidence_label": "likely | possible | ambiguous | not_supported | blocked | needs_data",
+  "forbidden_claim_attestation": {
+    "answer_free_input_only": true,
+    "observed_fact_separated_from_hypothesis": true,
+    "no_reveal_or_outcome_seen": true,
+    "no_market_result_judgment": true,
+    "no_edge_claim": true,
+    "no_can_trade_claim": true,
+    "no_product_go_claim": true,
+    "no_performance_claim": true,
+    "not_a_trade_instruction": true
+  }
+}

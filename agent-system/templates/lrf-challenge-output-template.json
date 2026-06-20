@@ -1,0 +1,107 @@
+{
+  "task_id": "",
+  "role_id": "challenge_lrf_trade_hypothesis",
+  "input_packet_ref": "",
+  "input_packet_hash": "",
+  "hypothesis_output_ref": "",
+  "hypothesis_output_hash": "",
+  "output_created_at": "",
+  "challenged_claims": [
+    {
+      "claim_ref": "",
+      "claim_text": "",
+      "challenge_type": "fake_breakout_risk | weak_premise | invalid_entry_trigger | missing_stop_or_invalidation | unrealistic_exit_or_target | cost_too_high | no_entry_overlooked | missing_data_family | overclaim | hindsight_risk | ambiguous",
+      "challenge_summary": "",
+      "packet_refs": []
+    }
+  ],
+  "supported_challenges": [
+    {
+      "challenge_ref": "",
+      "supporting_packet_refs": [],
+      "reason": ""
+    }
+  ],
+  "unsupported_or_ambiguous_challenges": [
+    {
+      "challenge_ref": "",
+      "reason": "",
+      "missing_evidence": []
+    }
+  ],
+  "challenge_focus": {
+    "fake_breakout_risk": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "weak_premise": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "invalid_entry_trigger": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "missing_stop_or_invalidation": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "unrealistic_exit_or_target": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "cost_too_high": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "no_entry_overlooked": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "missing_data_families": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "families": [],
+      "notes": ""
+    },
+    "overclaim": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    },
+    "hindsight_risk": {
+      "status": "present | absent | ambiguous | not_observable | blocked",
+      "notes": "",
+      "refs": []
+    }
+  },
+  "missing_evidence": [],
+  "blocker_classification": {
+    "class": "none | APP_BLOCKED | DATA_BLOCKED | R_APP_USAGE_GAP | R_METHOD_GAP | OWNER_POLICY_GAP",
+    "reason": "",
+    "required_next_evidence": []
+  },
+  "overclaim_risk": {
+    "level": "none | low | medium | high | blocked",
+    "reasons": [],
+    "affected_claim_refs": []
+  },
+  "confidence_label": "likely | possible | ambiguous | not_supported | blocked | needs_data",
+  "forbidden_claim_attestation": {
+    "answer_free_packet_only": true,
+    "frozen_hypothesis_only": true,
+    "no_reveal_or_outcome_seen": true,
+    "no_market_result_judgment": true,
+    "no_edge_claim": true,
+    "no_can_trade_claim": true,
+    "no_product_go_claim": true,
+    "no_performance_claim": true,
+    "not_a_trade_instruction": true
+  }
+}

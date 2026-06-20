@@ -1,0 +1,64 @@
+{
+  "task_id": "",
+  "role_id": "review_lrf_blind_discipline",
+  "input_packet_ref": "",
+  "input_packet_hash": "",
+  "hypothesis_output_ref": "",
+  "hypothesis_output_hash": "",
+  "challenge_output_ref": "",
+  "challenge_output_hash": "",
+  "output_created_at": "",
+  "packet_ref_check": {
+    "status": "pass | partial | fail | blocked",
+    "unsupported_refs": [],
+    "notes": ""
+  },
+  "hypothesis_field_completeness": {
+    "status": "complete | partial | incomplete | blocked",
+    "missing_fields": [],
+    "notes": ""
+  },
+  "challenge_field_completeness": {
+    "status": "complete | partial | incomplete | blocked",
+    "missing_fields": [],
+    "notes": ""
+  },
+  "answer_leakage_check": {
+    "status": "pass | fail | blocked",
+    "leakage_indicators": [],
+    "notes": ""
+  },
+  "unsupported_ref_check": {
+    "status": "pass | partial | fail | blocked",
+    "unsupported_refs": [],
+    "notes": ""
+  },
+  "overclaim_check": {
+    "status": "pass | partial | fail | blocked",
+    "overclaim_refs": [],
+    "notes": ""
+  },
+  "forbidden_claim_check": {
+    "status": "pass | fail | blocked",
+    "forbidden_claims_found": [],
+    "notes": ""
+  },
+  "reviewer_verdict": "DISCIPLINE_CLEAR | DISCIPLINE_PARTIAL | BLOCKER_REQUIRED",
+  "missing_evidence": [],
+  "blocker_classification": {
+    "class": "none | APP_BLOCKED | DATA_BLOCKED | R_APP_USAGE_GAP | R_METHOD_GAP | OWNER_POLICY_GAP",
+    "reason": "",
+    "required_next_evidence": []
+  },
+  "boundary_attestation": {
+    "reviewer_saw_only_frozen_packet_hypothesis_and_challenge": true,
+    "no_reveal_or_outcome_seen": true,
+    "reviewer_did_not_judge_market_result": true,
+    "reviewer_did_not_replace_deterministic_judge_or_evaluator": true,
+    "reviewer_checked_refs_leakage_completeness_overclaim_and_forbidden_claims": true,
+    "no_edge_claim": true,
+    "no_can_trade_claim": true,
+    "no_product_go_claim": true,
+    "no_performance_claim": true
+  }
+}
