@@ -1,41 +1,47 @@
-# FlowSight ResearchAgents Docs
+# FlowSight ResearchAgents 当前真相入口
 
-Status: skeleton
-Authority: future_current_truth_after_owner_review
+Status: current_truth
+Authority: owner_accepted_researchagents_docs
+Updated: 2026-06-20
 
-This directory is the future current-truth surface for the
-FlowSightResearchAgents method stack.
+本目录保存 ResearchAgents 当前被接受的研究对象、方法栈、流程边界和审计语言。
+它不是 `runs/**` 证据仓库，也不是 `notes/**` 草稿区。
 
-At this skeleton step, this file does not yet replace root `AGENTS.md` and does
-not import old root `skills/`, `workflows/`, `tools/`, templates, reviews, or
-run artifacts.
+## 当前结构
 
-## Intended Authority Model
+- `research/`：研究对象和研究方法的当前真相。
+- `research/lrf/`：当前 LRF / ICT / smart-money 研究对象和方法栈。
 
-- `docs/` will hold the current research operating model, process routing, and
-  method-stack truth.
-- `agent-system/` will hold active executable agent materials selected by the
-  new method stack.
-- `runs/`, `packets/`, `notes/`, `blockers/`, `sources/`, and `archive/` remain
-  evidence, working material, or historical stores, not current truth by
-  themselves.
-- Root `skills/`, `workflows/`, and `tools/` are legacy inventory surfaces until
-  explicit owner-authorized import or archive steps happen.
+## 当前边界
 
-## Planned Top-Level Processes
+ResearchAgents 使用 FlowSight app 作为 microscope、ledger、evaluator、verifier
+surface 和 replay surface，但不拥有 FlowSight app source、verifier、release
+artifact、endpoint directory、dispatcher-owned value、broker、OMS、exchange
+execution、live-order path 或 account-data path。
 
-- `owner_interactive_exploration`
-- `formal_packet_loop`
-- `app_blocker_reporting`
-- `historical_protocol_review`
+正式运行需要 dispatcher 提供：
 
-## Current Boundary
+- `--release-root`
+- `--endpoint-dir`
+- `--verifier-integrity-sha256`
 
-No FlowSight app source, verifier, release artifact, endpoint directory,
-dispatcher-owned value, broker, OMS, exchange execution, live-order path, or
-account-data path is owned by this workspace.
+R / ResearchAgents 不选择这些值，不声明 app verifier / release authority。
 
-## Next Authorized Step
+## 草稿与当前真相
 
-This skeleton is only Step 1. Future docs, imports, archive moves, and root
-bootloader changes require separate owner authorization.
+- `docs/**`：当前真相，只放 owner/C 已接受且适合作为长期方法栈的内容。
+- `notes/**`：草稿、临时推理、待 review 内容。
+- `agent-system/**`：active execution material；只有 owner 明确授权后才写入或修改。
+- legacy root `skills/`、`workflows/`、`tools/`：不作为默认资产，不为旧 S/ss 行为做兼容。
+
+## 禁止误读
+
+当前 docs 不产生：
+
+- edge claim
+- can-trade claim
+- Product GO
+- research packet
+- playbook mutation
+- FlowSight app implementation authorization
+
