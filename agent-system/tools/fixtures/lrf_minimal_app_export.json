@@ -1,0 +1,281 @@
+{
+  "fixture_attestation": {
+    "synthetic_fixture": true,
+    "not_market_evidence": true,
+    "not_research_packet": true
+  },
+  "packet_id": "fixture-lrf-answer-free-packet-001",
+  "created_at": "2026-06-20T00:00:00Z",
+  "client_mirror_first": {
+    "mirror_status": "partial",
+    "classification": "APP_CLIENT_PARITY_GAP",
+    "state_match_basis": [
+      "synthetic_fixture_only"
+    ],
+    "mismatch_detail": "Synthetic fixture does not claim live UI viewport parity.",
+    "readback_evidence": {
+      "command_or_route": "fixture",
+      "readback_at": "2026-06-20T00:00:00Z",
+      "endpoint_dir_or_url": "synthetic_fixture",
+      "response_id_or_hash": "fixture-only",
+      "source_refs": [
+        "agent-system/tools/fixtures/lrf_minimal_app_export.json"
+      ]
+    }
+  },
+  "app_context": {
+    "app_instance_ref": "synthetic_fixture",
+    "release_selector": "synthetic_fixture",
+    "endpoint_ref": "synthetic_fixture",
+    "read_model": "synthetic_lrf_minimal_export",
+    "projection_id": "synthetic_projection",
+    "projection_generation": "fixture_generation_1",
+    "projection_status": "fixture",
+    "data_family_status": {
+      "ohlcv": "available",
+      "trades": "missing",
+      "orderbook": "missing",
+      "oi": "missing",
+      "fr": "missing"
+    }
+  },
+  "owner_referent": {
+    "owner_words": "synthetic bounded LRF fixture",
+    "referent_type": "time_range",
+    "referent_binding_quality": "partial",
+    "time_range": {
+      "start": "2026-06-11T00:00:00Z",
+      "end": "2026-06-20T00:00:00Z"
+    },
+    "price_range": {
+      "low": 100.0,
+      "high": 112.0
+    },
+    "object_ref": "fixture_range_001",
+    "missing_referent_fields": [
+      "live_ui_viewport"
+    ]
+  },
+  "bounded_window": {
+    "symbol": "SYNTH-ETH-USDC",
+    "venue": "synthetic",
+    "timeframe": "5m",
+    "start": "2026-06-11T00:00:00Z",
+    "end": "2026-06-20T00:00:00Z",
+    "window_source": "owner_supplied_partial_mirror",
+    "known_limitations": [
+      "synthetic fixture, not market evidence"
+    ]
+  },
+  "instrument": {
+    "symbol": "SYNTH-ETH-USDC",
+    "venue": "synthetic",
+    "instrument_type": "perpetual_fixture",
+    "quote_asset": "USDC",
+    "base_asset": "ETH"
+  },
+  "known_at_boundary": {
+    "known_at_ts": "2026-06-20T00:00:00Z",
+    "decision_ts": "2026-06-20T00:00:00Z",
+    "allowed_evidence_cutoff": "2026-06-20T00:00:00Z",
+    "answer_free_boundary": true
+  },
+  "source_refs": [
+    {
+      "ref_id": "fixture_ohlcv_001",
+      "path": "agent-system/tools/fixtures/lrf_minimal_app_export.json",
+      "kind": "synthetic_fixture"
+    }
+  ],
+  "data_family_status": {
+    "ohlcv": {
+      "status": "available",
+      "refs": [
+        "fixture_ohlcv_001"
+      ],
+      "limitations": [
+        "synthetic sample only"
+      ]
+    },
+    "trades": {
+      "status": "missing",
+      "refs": [],
+      "limitations": [
+        "not included in fixture"
+      ]
+    },
+    "orderbook": {
+      "status": "missing",
+      "refs": [],
+      "limitations": [
+        "not included in fixture"
+      ]
+    },
+    "oi": {
+      "status": "missing",
+      "refs": [],
+      "limitations": [
+        "not included in fixture"
+      ]
+    },
+    "fr": {
+      "status": "missing",
+      "refs": [],
+      "limitations": [
+        "not included in fixture"
+      ]
+    }
+  },
+  "known_at_samples": {
+    "ohlcv": [
+      {
+        "ts": "2026-06-11T00:00:00Z",
+        "open": 100.0,
+        "high": 104.0,
+        "low": 99.0,
+        "close": 103.0,
+        "volume": 10.0
+      },
+      {
+        "ts": "2026-06-11T00:05:00Z",
+        "open": 103.0,
+        "high": 106.0,
+        "low": 101.0,
+        "close": 102.0,
+        "volume": 12.0
+      },
+      {
+        "ts": "2026-06-11T00:10:00Z",
+        "open": 102.0,
+        "high": 111.0,
+        "low": 101.0,
+        "close": 104.0,
+        "volume": 15.0
+      }
+    ]
+  },
+  "lrf_object_candidates": [
+    {
+      "candidate_id": "fixture_lrf_object_001",
+      "object_type": "range",
+      "observed_fact_refs": [
+        "fixture_ohlcv_001"
+      ],
+      "hypothesis_prompt": "Synthetic range candidate for answer-free packet tooling self-test.",
+      "status": "candidate",
+      "missing_evidence": [
+        "trades",
+        "orderbook",
+        "oi",
+        "fr"
+      ]
+    }
+  ],
+  "key_zone_candidates": [
+    {
+      "zone_id": "fixture_zone_001",
+      "zone_type": "range_boundary",
+      "price_low": 100.0,
+      "price_high": 106.0,
+      "time_start": "2026-06-11T00:00:00Z",
+      "time_end": "2026-06-11T00:10:00Z",
+      "source_refs": [
+        "fixture_ohlcv_001"
+      ],
+      "status": "candidate"
+    }
+  ],
+  "range_candidates": [
+    {
+      "range_id": "fixture_range_001",
+      "time_start": "2026-06-11T00:00:00Z",
+      "time_end": "2026-06-11T00:10:00Z",
+      "price_low": 99.0,
+      "price_high": 111.0,
+      "range_high_ref": "fixture_ohlcv_001",
+      "range_low_ref": "fixture_ohlcv_001",
+      "source_refs": [
+        "fixture_ohlcv_001"
+      ],
+      "status": "candidate"
+    }
+  ],
+  "sweep_or_fake_breakout_candidates": [
+    {
+      "event_id": "fixture_sweep_001",
+      "event_type": "sweep",
+      "time": "2026-06-11T00:10:00Z",
+      "price": 111.0,
+      "side": "up",
+      "close_back_inside": "true",
+      "source_refs": [
+        "fixture_ohlcv_001"
+      ],
+      "missing_evidence": [
+        "trades",
+        "orderbook"
+      ]
+    }
+  ],
+  "trade_hypothesis_field_slots": {
+    "premise": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "setup_context": {
+      "status": "provided_known_at",
+      "refs": [
+        "fixture_range_001",
+        "fixture_zone_001"
+      ]
+    },
+    "entry_trigger": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "entry_price_rule": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "invalidation_condition": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "stop_rule": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "exit_or_target_rule": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "cancel_condition": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "no_entry_condition": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "time_stop": {
+      "status": "empty_for_subagent",
+      "refs": []
+    },
+    "cost_model_ref": {
+      "status": "empty_for_subagent",
+      "refs": []
+    }
+  },
+  "missing_evidence": [
+    "trades",
+    "orderbook",
+    "oi",
+    "fr",
+    "live_ui_viewport"
+  ],
+  "blocker_classification": {
+    "class": "none",
+    "reason": "",
+    "required_next_evidence": []
+  }
+}
