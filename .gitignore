@@ -1,0 +1,18 @@
+# Conservative Git tracking for FlowSightResearchAgents.
+# Default: ignore everything, then explicitly allow current truth and
+# active agent-system materials.
+
+*
+
+!.gitignore
+!AGENTS.md
+
+!docs/
+!docs/**
+
+!agent-system/
+!agent-system/**
+
+# Keep generated caches out even inside allowed trees.
+__pycache__/
+*.pyc
