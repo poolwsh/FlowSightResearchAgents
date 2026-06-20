@@ -3,75 +3,74 @@
 Status: current_truth
 Updated: 2026-06-20
 
-## 当前研究对象
+## 一句话定义
 
-LRF 当前研究对象是一条基于 smart-money / ICT / order-flow 的前因后果链：
+LRF 研究的是关键 liquidity / OB / FVG / lost-zone / breaker 附近，市场如何通过横盘、扎针、sweep、fake breakout、accept / reject 完成局部重新定价，以及这种过程能否被建模成可盲测的交易假设。
+
+它不是单纯问“某个 OB/FVG 有没有效”，也不是看见突破后解释行情。LRF 的核心是前因后果：
 
 ```text
-前置暴跌 / displacement
-  -> 关键区域被打穿，形成失守区或流动性记忆区
-  -> 价格回到该区域附近并形成盘整
-  -> 盘整内部反复 sweep / 扎针 / fake breakout / accept-reject
-  -> 某次突破可能是真接受，也可能是假突破
-  -> 研究能否用 known-at 数据提前区分这两类情况
+前置 displacement / sweep / lost-zone / OB / FVG / breaker
+  -> 价格回到关键记忆区
+  -> 局部横盘和上下沿反复试探
+  -> sweep / wick / fake breakout / reclaim / reject
+  -> 形成一个可定义的入场候选或 no-entry
+  -> 后续由独立 judge 判断触发、失效、出场和成本
 ```
 
-这不是结论，而是当前被接受的研究 framing。
+## 结构观察与战法研究的分界
 
-## 更一般的 LRF 单元
+只描述这些现象还不是完整战法研究：
 
-每一个 liquidity、OB、FVG、失守区或 breaker 附近，都可能出现一个局部 LRF 单元：
+- 有一个横盘；
+- 上下沿有扎针；
+- 价格靠近 OB/FVG；
+- 突破后走了一段；
+- 某个位置看起来像假突破。
+
+完整 LRF 战法研究至少还必须定义：
+
+- `entry_trigger`：什么 known-at 条件触发候选；
+- `invalidation_condition`：什么条件证明假设错了；
+- `stop_rule`：研究上如何记录失败成本；
+- `exit_or_target_rule`：什么条件结束研究窗口；
+- `cancel_condition`：什么条件说明不再进入；
+- `no_entry_condition`：什么情况必须明确标 no-entry；
+- `failure_cost_model`：stop-out、timeout、missed-entry、slippage、fee、MAE/MFE 如何记录；
+- `judge_rule`：谁或什么工具在 reveal 后判定结果。
+
+没有这些字段，输出只能叫结构观察，不能叫完整战法研究。
+
+## LRF 局部单元
+
+每个 liquidity、OB、FVG、lost-zone 或 breaker 附近都可能出现一个局部 LRF 单元：
 
 ```text
 关键价格记忆 / liquidity object
-  -> 价格回到附近
+  -> 回到附近
   -> 局部盘整
-  -> 上下沿扎针 / sweep
-  -> 假接受 / 假突破
-  -> 真接受、拒绝、继续盘整或失效
+  -> 上下沿 sweep / wick
+  -> fake acceptance / fake breakout
+  -> 真接受、拒绝、继续盘整、失效或 no-entry
 ```
 
-因此，LRF 的本质不是“某个 OB/FVG 是否有效”，而是研究关键对象附近的流动性再分配过程。
-OB/FVG/liquidity 给出战场，盘整和扎针暴露战场内部的供需变化。
+OB/FVG/liquidity 给出战场；横盘、扎针和失败样本暴露战场内部供需变化；entry/exit/stop/no-entry 把观察变成可检验研究对象。
 
-## 为什么不是简单突破
+## 必须字段
 
-单独说“突破 range high”太粗。当前研究要看突破之前的区域内部演化：
+### 前因字段
 
-- 是否先有关键 liquidity / OB / FVG / 失守区。
-- 回到该区域后是否出现持续盘整。
-- 盘整中是否反复扫上下沿流动性。
-- 扎针后是回收、接受，还是延续失败。
-- 主动成交、OI、FR、orderbook 是否支持吸收、诱导、清算或重新接受。
-
-如果这些前因缺失，最后突破只能是一个价格事件，不能被写成 LRF 因果链。
-
-## 可证伪字段
-
-### 关键区 / 失守区
-
-需要后续 tool readback 或 ledger 固化的字段：
-
-- `breakdown_window_start`
-- `breakdown_window_end`
-- `breakdown_high`
-- `breakdown_low`
+- `premise_type`
+- `premise_time_window`
+- `source_liquidity_object`
 - `lost_zone_price_low`
 - `lost_zone_price_high`
-- `prior_support_or_liquidity_refs`
-- `breakdown_displacement_bars`
+- `prior_support_or_resistance_refs`
+- `displacement_or_breakdown_refs`
 - `known_at_ts`
 - `source_refs`
 
-判断问题：
-
-- 该区是否真的有结构角色，而不是事后框出来的噪声区？
-- 该区是否被有效打穿？
-- 后续价格回到该区时是否有多次反应？
-
-### 盘整
-
-需要字段：
+### 横盘字段
 
 - `range_start_ts`
 - `range_end_ts`
@@ -79,76 +78,48 @@ OB/FVG/liquidity 给出战场，盘整和扎针暴露战场内部的供需变化
 - `range_low`
 - `range_mid`
 - `range_duration_bars`
-- `range_overlap_with_lost_zone`
 - `upper_boundary_touches`
 - `lower_boundary_touches`
-- `source_refs`
+- `range_overlap_with_key_zone`
+- `known_at_source_refs`
 
-判断问题：
-
-- 盘整是否围绕关键区发生？
-- 盘整是否足够长，能构成重新定价过程？
-- 上下沿是否稳定，还是事后选择出来的边界？
-
-### sweep / fake breakout ledger
-
-每一次 sweep / fake breakout 至少记录：
+### sweep / fake breakout 字段
 
 - `event_ts`
 - `side`: `upper` / `lower`
-- `sweep_price`
 - `boundary_price`
+- `sweep_price`
 - `close_back_inside`
 - `acceptance_after_n_bars`
 - `rejection_after_n_bars`
-- `would_trigger_entry`
-- `would_stop_out`
-- `stop_price`
-- `max_adverse_excursion`
-- `max_favorable_excursion`
-- `fee_slippage_cost_model_ref`
+- `returned_inside_range`
 - `source_refs`
 
-研究必须记录失败、成本和无入场样本，不能只记录成功突破。
+### 交易假设字段
 
-### 成功候选 vs 失败候选
+- `entry_trigger`
+- `entry_price_rule`
+- `invalidation_condition`
+- `stop_rule`
+- `exit_or_target_rule`
+- `cancel_condition`
+- `no_entry_condition`
+- `time_stop`
+- `cost_model_ref`
+- `hypothesis_confidence`: `likely | possible | ambiguous | not_supported | blocked | needs_data`
 
-当前 ETH 探索 case 中，`06/15 00:10` 与 `06/15 10:50/10:54`
-只作为候选比较点。它们不是已验证结论。
+## 五类证据
 
-它们之所以重要，是因为探索S的失败说明：R 不能只把这类点当作“突破 K 线”。
-R 必须比较状态切换前后的 known-at 条件：
+每个关键判断都要映射到五类数据；不可用时必须显式 blocked。
 
-- 失败突破是否下一根或短窗口内回到 range 内。
-- 真接受候选是否在突破后不回到原矩形内。
-- 突破前是否有贴近上沿压缩、反复扫流动性、失败卖压或仓位挤压。
-- trades / OI / FR / orderbook 是否支持“重新接受”而不是事后看涨。
+- OHLCV：结构、range、sweep、displacement、accept/reject 候选。
+- Trades：主动成交、taker 方向、突破/回收时的 aggression。
+- Orderbook：被动防守、吸收、撤单、补单、流动性空洞。
+- Open Interest：新仓、平仓、挤压、去杠杆、仓位堆积。
+- Funding Rate：拥挤、方向偏置、carry regime。
 
-后续比较至少需要：
-
-- `breakout_ts`
-- `breakout_bar_open/high/low/close`
-- `breakout_displacement_size`
-- `close_position_vs_range_high`
-- `next_n_bars_acceptance`
-- `pullback_low_after_breakout`
-- `returned_inside_range`
-- `trades_delta_window`
-- `trade_volume_window`
-- `oi_change_window`
-- `funding_context`
-- `orderbook_status`
-- `known_at_feature_refs`
-
-## 五类数据用途
-
-- OHLCV：定义结构、失守区、盘整、sweep、reclaim、displacement、accept/reject。
-- Trades：验证主动成交、delta、buyer failure / seller failure。
-- Open Interest：判断新仓、平仓、挤压、去杠杆或仓位堆积。
-- Funding Rate：提供拥挤和方向背景，不单独作为信号。
-- Orderbook：验证被动防守、吸收、撤单、补单；不可用时必须标 blocker。
+OHLCV 可以提出候选，但不能单独证明 smart-money 因果机制。
 
 ## 当前边界
 
-当前文档接受的是研究对象和字段方向，不接受任何 edge、can-trade、Product GO 或 playbook mutation。
-
+本目录接受的是研究对象和协议字段，不接受任何 edge、can-trade、Product GO、money-grade、performance 或单次 case 结论。
