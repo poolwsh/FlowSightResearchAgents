@@ -21,7 +21,10 @@
 
 - 根目录 `skills/`、`workflows/`、`tools/` 只是 legacy inventory surface，不是应被盲目保护的兼容 surface。
 - 不要批量移动、复制、归档或删除旧材料。
-- 每一步迁移都需要 owner 单独授权。
+- `docs/**` 只能放当前事实、当前权威文档和 owner 已接受的正式说明；未接受的计划、草稿、inventory draft、讨论稿和未来可能性不要放进 `docs/**`。
+- `notes/**` 和 `tmp/**` 可以用于临时草稿、工作笔记、inventory 草案、讨论材料和待 review 内容；创建这类草稿不需要每次单独等待 owner 授权。
+- 修改正式入口或执行材料必须有 owner 明确授权，包括 `AGENTS.md`、`docs/**`、`agent-system/**`，以及任何会改变 R 行为的 active skill / workflow / tool / template / review prompt。
+- archive/import/bootloader 变更、批量移动、复制、归档或删除旧材料都需要 owner 单独授权。
 
 ## 角色边界
 
