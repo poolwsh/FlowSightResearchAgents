@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 import hashlib
 import json
 import sys
@@ -42,6 +43,43 @@ def read_json(path: str) -> Any:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def ms_to_utc_iso(value: Any) -> str:
+    try:
+        millis = int(value)
+    except (TypeError, ValueError):
+        return ""
+    return datetime.fromtimestamp(millis / 1000, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def normalize_phase5_bar(row: dict[str, Any]) -> dict[str, Any] | None:
+    time_value = row.get("time") or ms_to_utc_iso(row.get("open_time_ms"))
+    required = ("open", "high", "low", "close", "volume")
+    if not time_value or any(key not in row for key in required):
+        return None
+    return {
+        "time": time_value,
+        "open": row["open"],
+        "high": row["high"],
+        "low": row["low"],
+        "close": row["close"],
+        "volume": row["volume"],
+        "source_open_time_ms": row.get("open_time_ms", ""),
+        "source_close_time_ms": row.get("close_time_ms", ""),
+    }
+
+
+def normalize_bars(rows: Any) -> list[dict[str, Any]]:
+    if not isinstance(rows, list):
+        return []
+    return [
+        normalized
+        for row in rows
+        if isinstance(row, dict)
+        for normalized in [normalize_phase5_bar(row)]
+        if normalized is not None
+    ]
+
+
 def with_hash(payload: dict[str, Any], output_ref: str = "") -> dict[str, Any]:
     payload = dict(payload)
     payload["output_ref"] = output_ref
@@ -78,6 +116,33 @@ def blocked_payload(reason: str, request_id: str = "", evidence_cutoff: str = ""
 def extract_export(raw: Any) -> dict[str, Any]:
     if isinstance(raw, dict) and "bars_export" in raw and isinstance(raw["bars_export"], dict):
         return raw["bars_export"]
+    if isinstance(raw, dict) and isinstance(raw.get("data"), dict) and isinstance(raw["data"].get("bars"), list):
+        data = raw["data"]
+        return {
+            "symbol": data.get("symbol", raw.get("symbol", "")),
+            "venue": data.get("venue", raw.get("venue", "")),
+            "timeframe": data.get("timeframe", raw.get("timeframe", "")),
+            "source_shape": "data.bars",
+            "bars": normalize_bars(data["bars"]),
+        }
+    if isinstance(raw, dict) and isinstance(raw.get("ohlcv"), list):
+        return {
+            "symbol": raw.get("symbol", ""),
+            "venue": raw.get("venue", ""),
+            "timeframe": raw.get("timeframe", ""),
+            "source_shape": "ohlcv",
+            "bars": normalize_bars(raw["ohlcv"]),
+        }
+    if isinstance(raw, dict) and isinstance(raw.get("known_at_ohlcv_bars"), list):
+        bounded_window = raw.get("bounded_window") if isinstance(raw.get("bounded_window"), dict) else {}
+        metadata = {
+            "symbol": bounded_window.get("symbol", raw.get("symbol", "")),
+            "venue": bounded_window.get("venue", raw.get("venue", "")),
+            "timeframe": bounded_window.get("timeframe", raw.get("timeframe", "")),
+            "source_shape": "known_at_ohlcv_bars",
+        }
+        metadata["bars"] = normalize_bars(raw["known_at_ohlcv_bars"])
+        return metadata
     if isinstance(raw, dict):
         return raw
     return {"bars": []}
