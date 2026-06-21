@@ -1,0 +1,52 @@
+{
+  "artifact_kind": "synthetic_ohlcv_fixture.v1",
+  "synthetic_fixture": true,
+  "not_market_evidence": true,
+  "not_research_packet": true,
+  "symbol": "ETH-USDC",
+  "venue": "PerpUsdc",
+  "timeframe": "5m",
+  "source_ref": "synthetic:self-test-only",
+  "bars": [
+    {
+      "time": "2026-06-11T00:00:00Z",
+      "open": 100.0,
+      "high": 101.0,
+      "low": 99.0,
+      "close": 100.5,
+      "volume": 10.0
+    },
+    {
+      "time": "2026-06-11T00:05:00Z",
+      "open": 100.5,
+      "high": 103.2,
+      "low": 100.1,
+      "close": 101.8,
+      "volume": 12.0
+    },
+    {
+      "time": "2026-06-11T00:10:00Z",
+      "open": 101.8,
+      "high": 102.2,
+      "low": 99.8,
+      "close": 100.2,
+      "volume": 9.0
+    },
+    {
+      "time": "2026-06-11T00:15:00Z",
+      "open": 100.2,
+      "high": 100.8,
+      "low": 97.4,
+      "close": 99.4,
+      "volume": 14.0
+    },
+    {
+      "time": "2026-06-11T00:20:00Z",
+      "open": 99.4,
+      "high": 101.1,
+      "low": 98.8,
+      "close": 100.6,
+      "volume": 11.0
+    }
+  ]
+}

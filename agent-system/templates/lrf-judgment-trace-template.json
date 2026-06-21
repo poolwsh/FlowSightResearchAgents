@@ -1,0 +1,47 @@
+{
+  "judgment_id": "",
+  "judgment_type": "range_context | fvg_candidate | ob_candidate | liquidity_sweep | fake_breakout | acceptance | rejection | lost_zone_reaction | displacement | no_entry_reason | ambiguous_structure",
+  "decision_time": "",
+  "evidence_cutoff": "",
+  "observed_facts": [
+    {
+      "fact_id": "",
+      "source_ref": "",
+      "tool_response_ref": {
+        "response_id": "",
+        "output_ref": "",
+        "output_hash": ""
+      },
+      "value": {}
+    }
+  ],
+  "applied_rule_clauses": {
+    "satisfied": [],
+    "not_satisfied": [],
+    "ambiguous": []
+  },
+  "reasoning_chain": [
+    {
+      "step_id": "",
+      "claim": "",
+      "supported_by_fact_ids": [],
+      "limits": ""
+    }
+  ],
+  "counter_evidence": [],
+  "alternative_explanations": [],
+  "missing_evidence": [],
+  "confidence_label": "likely | possible | ambiguous | not_supported | needs_data | blocked",
+  "invalidation_or_recheck_condition": "",
+  "forbidden_future_attestation": {
+    "supporting_facts_at_or_before_cutoff": true,
+    "no_post_cutoff_support": true,
+    "no_reveal": true,
+    "no_outcome": true,
+    "no_judge_result": true,
+    "no_performance": true,
+    "no_edge_or_can_trade": true,
+    "no_product_go": true
+  }
+}
+

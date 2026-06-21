@@ -1,0 +1,170 @@
+{
+  "runtime_id": "",
+  "runtime_version": "lrf_judgment_trace_runtime.v1",
+  "source_docs": [
+    "docs/research/lrf/worker-agent-runtime.md",
+    "docs/research/lrf/analysis-workflow.md",
+    "docs/research/lrf/method-stack.md",
+    "docs/research/lrf/blind-validation-protocol.md",
+    "docs/research/lrf/trade-hypothesis-protocol.md",
+    "docs/research/lrf/blocker-taxonomy.md"
+  ],
+  "frozen_packet_ref": {
+    "path": "",
+    "hash": "",
+    "packet_kind": "answer_free_packet | runtime_preflight_packet | blocked"
+  },
+  "authorized_window": {
+    "symbol": "",
+    "venue": "",
+    "timeframe": "",
+    "start": "",
+    "end": "",
+    "source": "client_mirror | owner_bounded_partial_mirror | app_export | blocked"
+  },
+  "client_mirror_status": "seen | partial | not_exposed",
+  "client_mirror_limitation": {
+    "classification": "OK | NOT_RELEASE_APP_BOUND | APP_CLIENT_PARITY_GAP | OWNER_REFERENT_AMBIGUOUS | R_APP_USAGE_GAP",
+    "details": "",
+    "must_carry_forward": true
+  },
+  "allowed_tool_registry": [
+    {
+      "tool_id": "bars_slice",
+      "tool_kind": "broker_route | executable | existing_artifact_query",
+      "version_or_hash": "",
+      "purpose": "return OHLCV bars inside the authorized window and evidence cutoff",
+      "allowed_input_paths": [],
+      "allowed_args_schema": {
+        "start": "",
+        "end": "",
+        "evidence_cutoff": ""
+      },
+      "required_known_at_arg": true,
+      "allowed_time_range": {
+        "start": "",
+        "end": ""
+      },
+      "forbidden_sources": [
+        "raw_db",
+        "external_api",
+        "app_source",
+        "verifier_or_release_internals",
+        "answer_bearing_runs"
+      ],
+      "forbidden_output_fields": [
+        "reveal",
+        "outcome",
+        "judge_result",
+        "performance",
+        "edge",
+        "can_trade",
+        "product_go"
+      ],
+      "output_schema": "lrf-worker-tool-response-template.json",
+      "logging_required": true
+    }
+  ],
+  "allowed_skill_registry": [
+    {
+      "skill_id": "lrf-structure-judgment-rubric",
+      "source_path": "agent-system/skills/lrf-structure-judgment-rubric.md",
+      "source_hash": "",
+      "purpose": "LLM judgment from deterministic facts to auditable judgment_trace",
+      "allowed_inputs": [
+        "runtime_contract",
+        "tool_responses",
+        "source_refs",
+        "known_at_policy"
+      ],
+      "required_outputs": [
+        "judgment_trace"
+      ],
+      "forbidden_claims": [
+        "performance",
+        "edge",
+        "can_trade",
+        "Product GO"
+      ]
+    },
+    {
+      "skill_id": "review-lrf-runtime-discipline",
+      "source_path": "agent-system/skills/review-lrf-runtime-discipline.md",
+      "source_hash": "",
+      "purpose": "audit leakage, refs, trace completeness, and overclaim",
+      "allowed_inputs": [
+        "runtime_contract",
+        "tool_requests",
+        "tool_responses",
+        "judgment_traces",
+        "trade_hypothesis_candidate"
+      ],
+      "required_outputs": [
+        "runtime_discipline_review"
+      ],
+      "forbidden_claims": [
+        "market_result",
+        "performance",
+        "edge",
+        "can_trade",
+        "Product GO"
+      ]
+    }
+  ],
+  "known_at_policy": {
+    "mode": "exploration_mode | judgment_mode",
+    "decision_time_required": true,
+    "evidence_cutoff_required": true,
+    "supporting_facts_must_be_at_or_before_cutoff": true,
+    "post_cutoff_data_allowed_for_claim_support": false
+  },
+  "forbidden_sources": [
+    "raw_db",
+    "external_exchange_api",
+    "screenshots_as_primary_evidence",
+    "FlowSight_app_source",
+    "verifier_or_release_internals",
+    "dispatcher_internals",
+    "endpoint_dir_internals",
+    "answer_bearing_runs",
+    "broker_or_account_data"
+  ],
+  "forbidden_outputs": [
+    "reveal",
+    "outcome",
+    "judge_result",
+    "ledger_result",
+    "PnL",
+    "win_rate",
+    "expectancy",
+    "performance_claim",
+    "edge_claim",
+    "can_trade_claim",
+    "Product_GO",
+    "trade_recommendation"
+  ],
+  "required_artifacts": [
+    "runtime_contract.json",
+    "tool_requests.jsonl",
+    "tool_responses.jsonl",
+    "judgment_traces.jsonl",
+    "runtime_discipline_review.json"
+  ],
+  "attestations": {
+    "bounded_runtime": true,
+    "answer_free": true,
+    "known_at_policy_required": true,
+    "worker_chooses_allowed_tools_and_rubrics": true,
+    "r_does_not_preselect_hidden_answers": true,
+    "tools_return_deterministic_facts_only": true,
+    "no_reveal": true,
+    "no_outcome": true,
+    "no_judge_result": true,
+    "no_performance_claim": true,
+    "no_edge_claim": true,
+    "no_can_trade_claim": true,
+    "no_product_go_claim": true,
+    "no_app_source_or_raw_db": true
+  }
+}
+

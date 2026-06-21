@@ -1,0 +1,22 @@
+{
+  "response_id": "",
+  "request_id": "",
+  "tool_id": "",
+  "status": "ok | denied | blocked | error",
+  "source_ref": "",
+  "output_ref": "",
+  "output_hash": "",
+  "observation_summary": {},
+  "evidence_cutoff": "",
+  "cutoff_respected": false,
+  "blocked_reason": "",
+  "forbidden_attestation": {
+    "no_reveal": true,
+    "no_outcome": true,
+    "no_judge_result": true,
+    "no_performance": true,
+    "no_edge_or_can_trade": true,
+    "no_product_go": true
+  }
+}
+
