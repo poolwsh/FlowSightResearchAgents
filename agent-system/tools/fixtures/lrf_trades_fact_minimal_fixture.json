@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "read_model": "market_data_readback",
+  "channel": "trades",
+  "symbol": "PerpUsdc:ETH-USDC",
+  "requested_range": {
+    "from_ms": 1781280000000,
+    "to_ms": 1781280300000,
+    "as_of_ms": 1781280300000
+  },
+  "count": 4,
+  "limit": {
+    "requested_max_rows": 100000,
+    "effective_max_rows": 100000
+  },
+  "truncated": false,
+  "source": {
+    "channel_source": "synthetic_trades_fixture"
+  },
+  "known_at_policy": "row_known_at_lte_as_of_ms",
+  "rows": [
+    {
+      "ts_ms": 1781280000000,
+      "known_at_ms": 1781280000000,
+      "trade_id": 1,
+      "price": 100.0,
+      "qty": 2.0,
+      "aggressor_side": "buy"
+    },
+    {
+      "ts_ms": 1781280060000,
+      "known_at_ms": 1781280060000,
+      "trade_id": 2,
+      "price": 101.0,
+      "qty": 1.5,
+      "aggressor_side": "sell"
+    },
+    {
+      "ts_ms": 1781280120000,
+      "known_at_ms": 1781280120000,
+      "trade_id": 3,
+      "price": 102.0,
+      "qty": 3.0,
+      "aggressor_side": "buy"
+    },
+    {
+      "ts_ms": 1781280180000,
+      "known_at_ms": 1781280180000,
+      "trade_id": 4,
+      "price": 99.5,
+      "qty": 1.0,
+      "aggressor_side": "unknown"
+    }
+  ]
+}

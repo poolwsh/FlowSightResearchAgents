@@ -1,0 +1,72 @@
+{
+  "runtime_contract_id": "",
+  "status": "ready | blocked",
+  "source_binding_ref": {
+    "source_binding_id": "",
+    "source_manifest_hash": "",
+    "app_binding_ref": ""
+  },
+  "council_ref": {
+    "council_output_id": "",
+    "source_hash": ""
+  },
+  "director_task_ref": {
+    "director_task_id": "",
+    "source_hash": ""
+  },
+  "worker_allowed_window": {
+    "window_start": "",
+    "window_end": "",
+    "symbol": "",
+    "venue": "",
+    "timeframe": ""
+  },
+  "known_at_policy": {
+    "decision_time_policy": "",
+    "evidence_cutoff_policy": "",
+    "completed_bar_known_at": true,
+    "truncated_payload_rule": "partial_or_blocked"
+  },
+  "allowed_tool_registry": [],
+  "allowed_skill_registry": [],
+  "required_artifacts": [
+    "runtime_contract",
+    "tool_requests",
+    "tool_responses",
+    "judgment_traces",
+    "worker_output",
+    "falsifier_output",
+    "reviewer_discipline"
+  ],
+  "forbidden_sources": [
+    "raw_db",
+    "external_api",
+    "app_source",
+    "release_internals",
+    "verifier_internals",
+    "dispatcher_internals",
+    "endpoint_internals",
+    "reveal",
+    "judge",
+    "ledger",
+    "performance"
+  ],
+  "forbidden_outputs": [
+    "edge",
+    "can_trade",
+    "Product GO",
+    "live_signal",
+    "broker_action",
+    "OMS_action",
+    "live_order_action"
+  ],
+  "freeze_boundary": {
+    "stop_before_reveal": true,
+    "stop_before_judge": true,
+    "stop_before_ledger": true,
+    "stop_before_performance": true,
+    "stop_before_edge_or_can_trade": true,
+    "stop_before_product_go": true
+  },
+  "blocked_reason": ""
+}

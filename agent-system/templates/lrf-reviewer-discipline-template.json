@@ -1,0 +1,35 @@
+{
+  "review_id": "",
+  "status": "complete | blocked",
+  "reviewed_refs": {
+    "source_binding_ref": "",
+    "council_ref": "",
+    "director_task_ref": "",
+    "runtime_contract_ref": "",
+    "tool_requests_ref": "",
+    "tool_responses_ref": "",
+    "judgment_traces_ref": "",
+    "falsifier_output_ref": ""
+  },
+  "verdict": "pass | needs_fix | blocked",
+  "council_boundary_findings": [],
+  "director_sanitization_findings": [],
+  "worker_trace_findings": [],
+  "tool_response_linkage_findings": [],
+  "known_at_findings": [],
+  "partial_truncation_findings": [],
+  "hint_pollution_findings": [],
+  "falsifier_coverage_findings": [],
+  "overclaim_findings": [],
+  "reviewer_as_judge_violations": [],
+  "required_fixes": [],
+  "forbidden_next_actions": [
+    "no_reveal",
+    "no_judge",
+    "no_ledger",
+    "no_performance",
+    "no_edge_or_can_trade",
+    "no_product_go",
+    "no_live_order"
+  ]
+}

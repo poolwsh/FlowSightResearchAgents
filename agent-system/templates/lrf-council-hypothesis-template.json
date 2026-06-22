@@ -1,0 +1,56 @@
+{
+  "council_output_id": "",
+  "status": "draft | ready | blocked",
+  "historical_scope": {
+    "symbol": "",
+    "venue": "",
+    "timeframe": "",
+    "from": "",
+    "to": "",
+    "source_binding_ref": "",
+    "source_hash_refs": []
+  },
+  "hypotheses": [
+    {
+      "hypothesis_id": "",
+      "hypothesis_title": "",
+      "research_premise": "",
+      "why_worth_testing": [],
+      "falsification_criteria": [],
+      "confidence_label": "possible | ambiguous | needs_data | blocked"
+    }
+  ],
+  "candidate_windows": [
+    {
+      "candidate_id": "",
+      "hypothesis_ref": "",
+      "window_start": "",
+      "window_end": "",
+      "decision_time_policy": "",
+      "why_candidate": [],
+      "data_family_needs": []
+    }
+  ],
+  "verification_questions": [],
+  "data_family_needs": {
+    "ohlcv": "required | optional | unavailable | blocked",
+    "trades": "required | optional | unavailable | blocked",
+    "orderbook": "required | optional | unavailable | blocked",
+    "open_interest": "required | optional | unavailable | blocked",
+    "funding_rates": "required | optional | unavailable | blocked"
+  },
+  "negative_sample_needs": [],
+  "boring_sample_needs": [],
+  "failure_sample_needs": [],
+  "open_questions": [],
+  "forbidden_claims_attestation": {
+    "no_outcome": true,
+    "no_reveal": true,
+    "no_judge_or_ledger": true,
+    "no_performance": true,
+    "no_edge_or_can_trade": true,
+    "no_product_go": true,
+    "no_live_signal": true,
+    "not_direct_worker_input": true
+  }
+}

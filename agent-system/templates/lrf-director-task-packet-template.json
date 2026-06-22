@@ -1,0 +1,71 @@
+{
+  "director_task_id": "",
+  "status": "ready | blocked",
+  "council_ref": {
+    "council_output_id": "",
+    "source_hash": ""
+  },
+  "hypothesis_ref": {
+    "hypothesis_id": "",
+    "hypothesis_title": ""
+  },
+  "candidate_window": {
+    "candidate_id": "",
+    "window_start": "",
+    "window_end": "",
+    "symbol": "",
+    "venue": "",
+    "timeframe": ""
+  },
+  "worker_objective": "",
+  "decision_time_policy": {
+    "mode": "explicit | per_trace",
+    "decision_time": "",
+    "notes": ""
+  },
+  "evidence_cutoff_policy": {
+    "mode": "explicit | completed_bar | tool_response_bounded",
+    "evidence_cutoff": "",
+    "notes": ""
+  },
+  "allowed_tool_registry": [],
+  "allowed_skill_registry": [],
+  "forbidden_sources": [
+    "raw_db",
+    "external_api",
+    "app_source",
+    "release_internals",
+    "verifier_internals",
+    "dispatcher_internals",
+    "endpoint_internals",
+    "reveal",
+    "judge",
+    "ledger",
+    "performance"
+  ],
+  "forbidden_outputs": [
+    "edge",
+    "can_trade",
+    "Product GO",
+    "live_signal",
+    "broker_action",
+    "OMS_action",
+    "live_order_action"
+  ],
+  "information_isolation_attestation": {
+    "council_conclusion_language_removed": true,
+    "future_outcome_removed": true,
+    "other_worker_answers_removed": true,
+    "worker_not_given_global_free_browse": true,
+    "worker_not_given_single_bar_only": true
+  },
+  "required_worker_outputs": [
+    "tool_requests",
+    "tool_responses",
+    "judgment_traces",
+    "missing_evidence",
+    "counter_evidence",
+    "confidence_label"
+  ],
+  "blocked_reason": ""
+}

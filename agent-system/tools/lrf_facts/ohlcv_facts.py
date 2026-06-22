@@ -40,7 +40,7 @@ def forbidden_attestation() -> dict[str, bool]:
 
 
 def read_json(path: str) -> Any:
-    return json.loads(Path(path).read_text(encoding="utf-8"))
+    return json.loads(Path(path).read_text(encoding="utf-8-sig"))
 
 
 def ms_to_utc_iso(value: Any) -> str:
@@ -51,21 +51,47 @@ def ms_to_utc_iso(value: Any) -> str:
     return datetime.fromtimestamp(millis / 1000, tz=timezone.utc).isoformat().replace("+00:00", "Z")
 
 
+def parse_time_ms(value: Any) -> int | None:
+    if value in ("", None):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    text = str(value).strip()
+    if not text:
+        return None
+    if text.isdigit():
+        return int(text)
+    try:
+        parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return int(parsed.astimezone(timezone.utc).timestamp() * 1000)
+
+
 def normalize_phase5_bar(row: dict[str, Any]) -> dict[str, Any] | None:
-    time_value = row.get("time") or ms_to_utc_iso(row.get("open_time_ms"))
+    open_time_ms = parse_time_ms(row.get("open_time_ms") or row.get("time"))
+    time_value = row.get("time") or ms_to_utc_iso(open_time_ms)
     required = ("open", "high", "low", "close", "volume")
     if not time_value or any(key not in row for key in required):
         return None
+    close_time_ms = parse_time_ms(row.get("close_time_ms"))
     return {
         "time": time_value,
+        "time_ms": open_time_ms,
         "open": row["open"],
         "high": row["high"],
         "low": row["low"],
         "close": row["close"],
         "volume": row["volume"],
-        "source_open_time_ms": row.get("open_time_ms", ""),
-        "source_close_time_ms": row.get("close_time_ms", ""),
+        "source_open_time_ms": open_time_ms if open_time_ms is not None else row.get("open_time_ms", ""),
+        "source_close_time_ms": close_time_ms if close_time_ms is not None else row.get("close_time_ms", ""),
     }
+
+
+def bar_known_at_ms(bar: dict[str, Any]) -> int | None:
+    return parse_time_ms(bar.get("source_close_time_ms") or bar.get("close_time_ms") or bar.get("time_ms") or bar.get("time"))
 
 
 def normalize_bars(rows: Any) -> list[dict[str, Any]]:
@@ -116,6 +142,30 @@ def blocked_payload(reason: str, request_id: str = "", evidence_cutoff: str = ""
 def extract_export(raw: Any) -> dict[str, Any]:
     if isinstance(raw, dict) and "bars_export" in raw and isinstance(raw["bars_export"], dict):
         return raw["bars_export"]
+    if (
+        isinstance(raw, dict)
+        and raw.get("read_model") == "market_data_readback"
+        and raw.get("channel") == "bars"
+        and isinstance(raw.get("rows"), list)
+    ):
+        source = raw.get("source") if isinstance(raw.get("source"), dict) else {}
+        return {
+            "symbol": raw.get("symbol", ""),
+            "venue": raw.get("venue", ""),
+            "timeframe": raw.get("timeframe", ""),
+            "source_shape": "market_data_readback.bars.rows",
+            "source": source,
+            "known_at_policy": raw.get("known_at_policy", ""),
+            "bars": normalize_bars(raw["rows"]),
+        }
+    if isinstance(raw, dict) and isinstance(raw.get("bars"), list):
+        return {
+            "symbol": raw.get("symbol", ""),
+            "venue": raw.get("venue", ""),
+            "timeframe": raw.get("timeframe", ""),
+            "source_shape": "bars",
+            "bars": normalize_bars(raw["bars"]),
+        }
     if isinstance(raw, dict) and isinstance(raw.get("data"), dict) and isinstance(raw["data"].get("bars"), list):
         data = raw["data"]
         return {
@@ -151,16 +201,32 @@ def extract_export(raw: Any) -> dict[str, Any]:
 def bars_from_export(raw: Any) -> list[dict[str, Any]]:
     export = extract_export(raw)
     bars = export.get("bars") or []
-    return sorted([bar for bar in bars if isinstance(bar, dict) and "time" in bar], key=lambda item: str(item.get("time", "")))
+    normalized = []
+    for bar in bars:
+        if not isinstance(bar, dict) or "time" not in bar:
+            continue
+        time_ms = parse_time_ms(bar.get("time_ms") or bar.get("source_open_time_ms") or bar.get("time"))
+        if time_ms is None:
+            continue
+        item = dict(bar)
+        item["time_ms"] = time_ms
+        normalized.append(item)
+    return sorted(normalized, key=lambda item: int(item.get("time_ms", 0)))
 
 
 def in_window(bar: dict[str, Any], start: str, end: str, cutoff: str) -> bool:
-    time_value = str(bar.get("time", ""))
-    if start and time_value < start:
+    time_value = parse_time_ms(bar.get("time_ms") or bar.get("source_open_time_ms") or bar.get("time"))
+    if time_value is None:
         return False
-    if end and time_value > end:
+    start_ms = parse_time_ms(start)
+    end_ms = parse_time_ms(end)
+    cutoff_ms = parse_time_ms(cutoff)
+    known_at_ms = bar_known_at_ms(bar)
+    if start_ms is not None and time_value < start_ms:
         return False
-    if cutoff and time_value > cutoff:
+    if end_ms is not None and time_value > end_ms:
+        return False
+    if cutoff_ms is not None and (known_at_ms is None or known_at_ms > cutoff_ms):
         return False
     return True
 
@@ -188,10 +254,17 @@ def range_stats(bars: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def bar_lookup(all_bars: list[dict[str, Any]], timestamp: str, cutoff: str) -> dict[str, Any]:
-    eligible = [bar for bar in all_bars if (not cutoff or str(bar.get("time", "")) <= cutoff)]
-    exact = [bar for bar in eligible if str(bar.get("time", "")) == timestamp]
-    before = [bar for bar in eligible if str(bar.get("time", "")) <= timestamp]
-    after = [bar for bar in eligible if str(bar.get("time", "")) >= timestamp]
+    target_ms = parse_time_ms(timestamp)
+    cutoff_ms = parse_time_ms(cutoff)
+    eligible = [
+        bar
+        for bar in all_bars
+        if cutoff_ms is None
+        or (bar_known_at_ms(bar) is not None and int(bar_known_at_ms(bar) or 0) <= cutoff_ms)
+    ]
+    exact = [bar for bar in eligible if target_ms is not None and int(bar.get("time_ms", 0)) == target_ms]
+    before = [bar for bar in eligible if target_ms is not None and int(bar.get("time_ms", 0)) <= target_ms]
+    after = [bar for bar in eligible if target_ms is not None and int(bar.get("time_ms", 0)) >= target_ms]
     return {
         "target_timestamp": timestamp,
         "exact_matches": exact,
@@ -269,7 +342,7 @@ def build_payload(args: argparse.Namespace, raw: Any) -> dict[str, Any]:
             "mode_result": summary,
         },
         "evidence_cutoff": args.evidence_cutoff,
-        "cutoff_respected": all(not args.evidence_cutoff or str(bar.get("time", "")) <= args.evidence_cutoff for bar in selected),
+        "cutoff_respected": all(in_window(bar, "", "", args.evidence_cutoff) for bar in selected),
         "blocked_reason": "",
         "forbidden_attestation": forbidden_attestation(),
     }

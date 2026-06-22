@@ -1,0 +1,35 @@
+{
+  "falsifier_output_id": "",
+  "status": "complete | needs_data | blocked",
+  "director_task_ref": {
+    "director_task_id": "",
+    "source_hash": ""
+  },
+  "hypothesis_ref": {
+    "hypothesis_id": "",
+    "source_hash": ""
+  },
+  "counter_evidence": [
+    {
+      "finding_id": "",
+      "tool_response_refs": [],
+      "observation": "",
+      "why_it_matters": ""
+    }
+  ],
+  "no_entry_findings": [],
+  "boring_sample_findings": [],
+  "failure_sample_findings": [],
+  "alternative_explanations": [],
+  "missing_evidence": [],
+  "confidence_label": "likely | possible | ambiguous | not_supported | needs_data | blocked",
+  "forbidden_future_attestation": {
+    "no_outcome": true,
+    "no_reveal": true,
+    "no_judge_or_ledger": true,
+    "no_performance": true,
+    "no_edge_or_can_trade": true,
+    "no_product_go": true
+  },
+  "blocked_reason": ""
+}
