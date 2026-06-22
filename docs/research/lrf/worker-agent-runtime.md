@@ -1,102 +1,88 @@
 # LRF Worker Agent Runtime
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-本文定义 LRF worker agent 如何自主研究，同时防止拍脑袋、偷看未来和越权取数。
+本文定义 LRF worker 如何在历史研究中自主取证、判断和输出 trace，同时防止看未来、被暗示、越权取数或把工具事实伪装成 smart-money 结论。
 
 ## 核心原则
 
-worker 不是填表员，R 也不替 worker 预选答案。正确模型是：
+Worker 不是填表员，也不是全局选题者。正确模型是：
 
 ```text
-R 提供目标和边界
-  -> worker 自己选择工具和判断规则
-  -> tools 返回 deterministic facts
-  -> worker 用 rubric 做判断
-  -> judgment_trace 留下证据链
+Research Director 给出 bounded task
+  -> worker 自主请求允许的 deterministic facts
+  -> broker 执行工具并记录 source/hash/cutoff
+  -> worker 用 rubric 写 judgment_trace
   -> reviewer 审纪律
-  -> future judge / ledger 才看 reveal
+  -> freeze 后未来 judge / ledger 才看 outcome
 ```
 
-worker 可以自主探索，但必须在 bounded runtime 内运行。
+R / Director 不得替 worker 预选答案，也不得把 Council 的“希望这里有戏”喂给 blind worker。
 
 ## Runtime 输入
 
 每次 worker 任务至少包含：
 
 - `research_objective`
-- `frozen_packet_path`
-- `frozen_packet_hash`
-- `authorized_window`
-- `client_mirror_status`
-- `client_mirror_limitation`
+- `hypothesis_ref`，可选；不得包含结论性答案
+- `candidate_window`
+- `decision_time_policy`
+- `evidence_cutoff_policy`
+- `source_data_manifest`
 - `allowed_tool_registry`
 - `allowed_skill_registry`
-- `known_at_cursor_policy`
+- `known_at_policy`
 - `forbidden_sources`
 - `forbidden_outputs`
 - `required_output_shape`
 
-R 不能把后验答案、成功标签、judge result、performance 或未来走势塞进 worker 输入。
+允许输入：
+
+- 历史窗口；
+- 数据族可用性；
+- source refs / hashes；
+- worker 可请求的工具列表；
+- rubric 名称；
+- 需要验证的问题。
+
+禁止输入：
+
+- future path；
+- outcome；
+- win/loss；
+- judge result；
+- performance；
+- edge / can-trade；
+- Council 对该窗口的倾向性结论；
+- 其他 worker 的答案。
 
 ## Tool registry
 
-tools 是 deterministic fact provider，不是 smart-money 结论生成器。
+Tools 是 deterministic fact providers，不是 smart-money label generator。
 
-最小工具类型：
+当前事实工具类型：
 
-- `bars_slice`：读取 cutoff 内的 OHLCV bars。
-- `bar_lookup`：读取某个 timestamp 附近、cutoff 内的 bars。
-- `range_stats`：计算某个 interval 的 high、low、open、close、volume。
-- `wick_close_back_fact`：计算 wick extreme 和 close-back-inside 事实。
+- OHLCV：`bars_slice`、`bar_lookup`、`range_stats`、`wick_close_back_fact`。
+- Trades：`slice_summary`、`adaptive_time_buckets`、`price_zone_filter`、`large_prints`，必须保留 truncation / partial / source hash 纪律。
+- Funding / OI：可在明确 GOAL 中用 bounded inline deterministic parse，后续应做专门 fact tools。
 
-以后可以扩展：
-
-- trades aggression facts；
-- orderbook absorption / pull / replenish facts；
-- OI expansion / compression facts；
-- funding regime facts。
-
-tools 不允许输出：
+工具不得输出：
 
 - `this_is_ob`
 - `this_is_fvg`
 - `this_is_liquidity_sweep`
-- `this_is_smart_money_acceptance`
+- `this_is_acceptance`
+- `entry_confirmed`
 - `edge`
 - `can_trade`
 - `performance`
 
-除非某个工具明确被设计为低层 proxy，也必须写清楚 proxy 限制，不能把 proxy 当最终判断。
-
-## Skill / rubric registry
-
-skills 是 LLM 判断规则，不是 persona，不是 data reader。
-
-当前 LRF 最小 rubric：
-
-- `lrf-structure-judgment-rubric`
-- `liquidity-sweep-judgment-rubric`
-- `fake-breakout-vs-acceptance-rubric`
-- `lost-zone-reaction-rubric`
-- `displacement-quality-rubric`
-- `trade-hypothesis-fielding-rubric`
-
-每个 rubric 至少定义：
-
-- 判断对象；
-- 必要支持证据；
-- 反证；
-- 最少 source refs；
-- known-at cutoff 要求；
-- confidence labels；
-- missing evidence 处理；
-- forbidden claims。
+工具可以输出低层事实，例如 count、price range、volume、side quantities、completed bar range、wick/close-back facts、OI/funding value changes。最终判断由 worker + rubric 做。
 
 ## Brokered tool request
 
-worker 默认不直接拿 broad shell 或全仓库访问。worker 发结构化 `tool_request`，R 审核后执行或拒绝。
+Worker 不直接拿 broad shell、raw DB、external API 或 app internals。Worker 发结构化 `tool_request`，R/broker 审核后执行。
 
 最小 `tool_request`：
 
@@ -107,6 +93,8 @@ tool_request:
   tool_id:
   reason:
   params:
+  requested_start:
+  requested_end:
   evidence_cutoff:
   expected_observation:
   why_allowed:
@@ -118,34 +106,45 @@ tool_request:
 tool_response:
   request_id:
   tool_id:
-  status: ok | denied | blocked | error
+  status: ok | denied | blocked | partial | error
   source_ref:
   output_ref:
   output_hash:
   observation_summary:
+  requested_start:
+  requested_end:
+  evidence_cutoff:
   cutoff_respected:
+  complete_or_partial:
   blocked_reason:
 ```
 
-R 不能把 tool response 改写成隐藏答案再喂给 worker。R 只做边界审核、执行、记录和返回。
+R 不得把 tool response 改写成隐藏答案再喂给 worker。R 只做边界审核、执行、记录和返回。
+
+## Known-at policy
+
+历史研究允许看历史数据，但每个判断必须模拟当时可知信息。
+
+- 完整 OHLCV bar 只有在 bar close time <= evidence cutoff 时可用。
+- Trades slice 只有在 app readback 证明 requested range / as_of / truncation 状态后可用。
+- Truncated trades 不得作为完整 aggression confirmation。
+- Funding / OI 只能按 source known-at policy 和 evidence cutoff 使用。
+- Outcome / future path 只能在 freeze 后给 judge / ledger。
 
 ## Judgment trace
 
-每个判断都必须有 trace。trace 是后续 challenge、reviewer、judge 之前唯一能审查 LLM 判断是否按规则走的证据。
+每个非平凡判断都必须有 trace。
 
 最小 shape：
 
 ```yaml
 judgment_trace:
   judgment_id:
-  judgment_type: fvg | ob | liquidity_sweep | fake_breakout | acceptance | lost_zone_reaction | displacement | no_entry_reason
+  judgment_type:
   decision_time:
   evidence_cutoff:
+  tool_response_refs:
   observed_facts:
-    - fact_id:
-      source_ref:
-      tool_response_ref:
-      value:
   applied_rule_clauses:
     satisfied:
     not_satisfied:
@@ -161,36 +160,26 @@ judgment_trace:
 
 没有 trace 的判断不能进入 hypothesis、challenge、ledger 或 cross-case 统计。
 
-## Known-at policy
-
-answer-free 不是“不给数据”，而是“不给答案”。worker 可以在授权窗口里探索历史数据，但写判断和 hypothesis 时必须声明 cutoff。
-
-两种模式：
-
-1. `exploration_mode`：worker 可在授权窗口内查找候选现象，但不能声明 outcome、performance、win/loss 或 edge。
-2. `judgment_mode`：worker 必须设置 `decision_time` 和 `evidence_cutoff`，并且支持 entry、stop、exit、no-entry 的理由只能引用 cutoff 之前的事实。
-
-cutoff 之后的数据只能留给未来 judge / reveal / ledger，不能用于证明 worker 当时的判断正确。
-
 ## Reviewer 边界
 
-reviewer 审：
+Reviewer 审：
 
 - 是否偷看未来；
 - refs 是否存在；
 - tool response 是否被正确引用；
-- judgment trace 是否完整；
-- reasoning_chain 是否真的由 observed_facts 支撑；
+- trace 是否完整；
+- reasoning 是否由 observed facts 支撑；
+- partial/truncated 数据是否被误用；
 - 是否忽略明显反证；
 - 是否 overclaim；
-- 是否把 tools 的低层事实伪装成 smart-money 结论。
+- 是否把 tools 的低层事实伪装成 smart-money 结论；
+- blind worker 是否被 Director 或 Council 暗示。
 
-reviewer 不审：
+Reviewer 不审：
 
 - 市场结果是否赚钱；
-- stop 是否真的没被打；
-- target 是否真的到达；
+- stop/target 是否真的命中；
 - win-rate、PnL、expectancy；
 - edge / can-trade / Product GO。
 
-这些只能由未来 deterministic judge / evaluator / ledger 处理。
+这些只能由 future deterministic judge / evaluator / ledger 处理。

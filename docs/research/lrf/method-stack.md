@@ -1,23 +1,23 @@
 # LRF 方法栈
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-LRF 研究分成 docs、workflow、skills、templates、tools、reviews、runs 七层。docs 是当前事实源，其他执行材料必须从 docs 派生，不能从一次 dry-run、旧 S 习惯或临场判断反向定义研究方向。
+LRF 研究分成 docs、workflows、skills、templates、tools、reviews、runs 七层。docs 是当前事实源；其他执行材料必须从 docs 派生，不能从单次 run、旧习惯或临场判断反向定义研究方向。
 
 ## docs
 
-docs 保存 owner/C 接受的长期研究真相：
+`docs/**` 保存长期研究真相：
 
 - 研究对象；
+- 研究智能体组织模型；
 - worker runtime；
 - judgment trace；
 - trade-hypothesis protocol；
 - blind validation protocol；
 - ledger requirements；
 - blocker taxonomy；
-- 方法栈边界；
-- 分析工作流纪律。
+- 方法栈边界。
 
 docs 不放：
 
@@ -27,131 +27,115 @@ docs 不放：
 - active tool implementation；
 - edge / can-trade / Product GO。
 
-## workflow
+## workflows
 
-workflow 定义执行顺序，不负责概率判断和精确计算。
+Workflow 定义执行顺序，不负责市场判断。
 
 LRF workflow 必须保证：
 
-1. Client Mirror First；
-2. answer-free packet；
-3. bounded worker runtime；
-4. brokered tool request；
-5. judgment trace；
-6. entry / invalidation / stop / exit / no-entry 字段化；
-7. blind challenge；
+1. app-owned source binding / Client Mirror First；
+2. Council hypothesis；
+3. Director task slicing；
+4. answer-free worker runtime；
+5. brokered tool request；
+6. judgment trace；
+7. falsifier / negative sample pass；
 8. reviewer discipline audit；
-9. deterministic judge / evaluator；
-10. failure / cost / no-entry ledger；
-11. post-reveal comparison；
-12. no edge / no trade permission boundary。
+9. freeze；
+10. future deterministic judge / ledger；
+11. no edge / no live trade boundary。
 
-workflow 的核心职责是防止 R 跳过前因、跳过失败成本、跳过盲测、替 worker 预选答案或让 Agent 自己判自己。
+Workflow 的核心职责是防止 R 跳过前因、失败成本、盲测、反例和信息隔离。
 
 ## skills
 
-skills 是大模型判断任务和规则 rubric，不是长期 persona。
+Skills 是 LLM 判断规则和操作规程，不是 deterministic data reader。
 
-可接受的 skill 形态：
+可接受的 skill：
 
-- 给定 bounded objective 和 allowed registry，做结构判断；
-- 根据工具事实判断 liquidity sweep 是否成立；
-- 判断 fake breakout vs acceptance；
-- 判断 lost-zone reaction；
-- 写 blind trade hypothesis；
-- 攻击 hypothesis；
-- 审盲测纪律和 trace 完整性。
+- 结构判断 rubric；
+- liquidity / sweep / fake-breakout / acceptance 判断；
+- Research Director 切片规程；
+- Council hypothesis 讨论规程；
+- reviewer discipline audit；
+- capability gap diagnosis；
+- launch/bind 操作 skill。
 
-skills 可以输出：
-
-- `likely`
-- `possible`
-- `ambiguous`
-- `not_supported`
-- `blocked`
-- `needs_data`
-
-skills 必须输出 evidence refs、reasoning chain、counter evidence 和 missing evidence。skills 不读 raw DB，不选择 dispatcher-owned values，不做 deterministic judge，不产生 edge / Product GO / can-trade。
-
-## templates
-
-templates 定义输入输出形状，不是 current truth。
-
-候选模板：
-
-- answer-free packet；
-- worker tool request；
-- worker tool response；
-- judgment trace；
-- blind hypothesis output；
-- adversarial output；
-- reviewer discipline output；
-- judge output；
-- failure/cost ledger。
-
-template 可以放在 `agent-system/templates/**`，但只有当 docs 已接受字段纪律后才可创建。
+Skills 必须输出 evidence refs、reasoning chain、counter evidence 和 missing evidence。Skills 不读 raw DB、不选择 dispatcher-owned values、不当 deterministic judge、不产生 edge / Product GO / can-trade。
 
 ## tools
 
-tools 必须是真实 `.py` / `.ps1` / schema / config，不放 `.md` tool contract。
+Tools 必须是真实 `.py` / `.ps1` / schema / config。Tools 负责可复现事实，不负责 smart-money 结论。
 
-tools 负责：
+当前可接受 tool 类型：
 
-- 可复现事实；
-- app endpoint/export 输入解析；
-- bars slice；
-- bar lookup；
-- range stats；
-- wick / close-back-inside facts；
-- deterministic judge；
-- JSON / JSONL 输出；
-- source refs；
-- blocker classification。
+- app-owned CLI/readback wrapper；
+- OHLCV facts；
+- trades adaptive facts；
+- future funding/OI/orderbook facts；
+- JSON/JSONL validation；
+- deterministic judge / ledger 工具，只有未来单独授权后。
 
-tools 不负责：
+Tools 不负责：
 
-- 解释市场；
 - 写 hypothesis；
-- 直接输出 smart-money 最终标签；
-- 产生研究结论；
-- 选择 dispatcher-owned values；
-- 读取 raw DB；
-- 读取外部 API；
-- 声明 app verifier / release authority；
-- 生成 edge / Product GO / can-trade。
+- 解释市场；
+- 输出 OB/FVG/liquidity/sweep/acceptance 最终标签；
+- 选择 release-root / endpoint-dir / verifier hash；
+- raw DB / external API；
+- edge / Product GO / can-trade。
+
+## templates
+
+Templates 定义输入输出形状，不是 current truth。
+
+候选模板：
+
+- Council hypothesis；
+- Director task packet；
+- worker tool request；
+- worker tool response；
+- judgment trace；
+- adversarial output；
+- reviewer output；
+- judge output；
+- ledger record。
+
+字段纪律必须先在 docs 中被接受，再创建 active template。
 
 ## reviews
 
-reviews 检查：
+Reviews 检查：
 
 - 是否遵守 docs current truth；
 - 是否泄漏答案；
-- 是否引用不存在字段；
+- refs 是否存在；
 - judgment trace 是否完整；
-- reasoning chain 是否由 observed facts 支撑；
-- 是否 overclaim；
-- 是否跳过 failure/no-entry；
-- 是否把 Reviewer Agent 当 deterministic judge；
-- 是否把工具缺口、数据缺口和 R 方法缺口混在一起。
+- known-at 是否正确；
+- partial/truncated 是否误用；
+- 是否跳过 no-entry / failure / boring cases；
+- 是否把 reviewer 当 judge；
+- 是否把 tool/data/app/worker/skill/orchestration gap 混在一起。
 
-review 不替代 owner/C verdict，也不授权 app work。
+Review 不替代 owner/C verdict，也不授权 app work。
 
 ## runs
 
-`runs/**` 保存过程证据和实验产物，不是长期 truth。
+`runs/**` 保存过程证据和实验产物。Run 可以保存：
 
-run 可以保存：
-
-- packet；
-- tool request / response；
+- source manifest；
+- Council output；
+- Director task packet；
+- tool requests/responses；
+- worker output；
 - judgment traces；
-- subagent outputs；
-- validation；
+- reviewer audit；
+- validation report；
 - summary。
 
-run 不能直接升级为 docs truth。任何 run lesson 进入 docs 前都需要 owner/C 接受。
+Run 不自动升级为 docs truth。任何 run lesson 进入 docs 前都需要 owner/C 接受。
 
-## Dispatcher-owned boundary
+## dispatcher-owned boundary
 
 R、skills、tools 永远不选择：
 
@@ -161,13 +145,13 @@ R、skills、tools 永远不选择：
 
 这些值由 dispatcher / app-side authority 提供。
 
-## Cross-case 边界
+## cross-case 边界
 
-跨 case 统计只用于判断：
+跨样本统计只能用于判断：
 
-- 哪些 hypothesis 值得继续研究；
-- 哪些 hypothesis 应放弃；
+- 哪些 hypothesis 值得继续；
+- 哪些 hypothesis 应停止；
 - 哪些字段、工具或 judgment trace 缺失；
-- 是否有进一步统计支撑。
+- 是否有进一步统计支持。
 
-跨 case 统计不能直接写成交易许可、edge、money-grade、Product GO 或 can-trade。
+跨样本统计不能直接写成交易许可、edge、money-grade、Product GO 或 can-trade。

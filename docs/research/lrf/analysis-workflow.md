@@ -1,138 +1,130 @@
 # LRF 分析工作流
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-本文定义 R 面对 owner 指向 FlowSight app 中某段行情、某个时间点、某个矩形、某个横盘或某次突破时的默认研究顺序。
+本文定义 ResearchAgents 面对 LRF 历史研究任务时的默认流程。核心目标不是让 R 临场解释行情，而是让多个智能体在明确边界内提出假设、切片验证、找反例、留下可审计证据。
 
-目标不是让 R 临场解释行情，而是让 worker agent 在可控边界内自主取证、按规则判断、留下 trace，再形成可盲测的 trade hypothesis。
+## 0. 明确任务类型
 
-## 0. Client Mirror First
+先区分三种任务：
 
-owner 引用 UI 可见事实时，第一步永远是 Client Mirror First。
+1. `historical_research`：研究历史数据里是否存在可复现方法。默认任务类型。
+2. `app_binding_or_capability_diagnostic`：验证 app/readback/tool 是否可用。
+3. `live_trading_or_execution`：实时交易、下单、OMS、broker。当前禁止。
 
-R 必须先绑定：
+LRF 默认只做 `historical_research`。
 
-- 同一 app instance / endpoint；
-- projection / read-model generation；
-- symbol、venue、timeframe；
-- visible time range / visible price range；
-- owner referent：cursor、selected bar、drawing、rectangle、level、highlighted range。
+## 1. App-owned source binding
 
-输出：
+研究使用 FlowSight app-owned readback。正式边界内，R 不读 raw DB、不读 external API、不编辑 app internals。
 
-- `client_mirror_first.mirror_status: seen | partial | not_exposed`
-- `APP_CLIENT_PARITY_GAP` / `NOT_RELEASE_APP_BOUND` / `OWNER_REFERENT_AMBIGUOUS` / `R_APP_USAGE_GAP`
+如果 owner 指向 UI 可见状态，先执行 Client Mirror First：
 
-如果 CLI/projection 不能暴露 owner referent，不许装作看见。可以在 owner 提供 bounded window 时做 partial exploratory research，但必须标明来源和限制。
+- 绑定同一 app instance / endpoint；
+- 读取 symbol、timeframe、visible window、projection/read-model；
+- 报告 `client_mirror_first.mirror_status: seen | partial | not_exposed`。
 
-## 1. 建立 bounded worker runtime
+如果是历史研究批次，可以由 dispatcher / app-side 提供 clean release binding、endpoint、CLI 和数据窗口。
 
-R 不预选答案，不把厚 candidate packet 塞给 worker。R 负责给 worker 一个边界清楚的运行环境：
+## 2. Global Research Council 提出候选
 
-- research objective；
-- frozen packet/ref/hash；
-- authorized time window；
-- partial mirror limitation；
-- allowed tool registry；
-- allowed skill / rubric registry；
-- forbidden sources and outputs；
-- known-at cursor policy；
-- required `judgment_trace` shape。
+Council 在较大历史范围内做研究讨论，目标是提出：
 
-worker 在这个边界里自主决定查什么、用什么规则判断。
+- 可证伪 hypothesis；
+- candidate windows；
+- data family needs；
+- no-entry / boring / failure 样本需求；
+- 下一步验证问题。
 
-## 2. Exploration mode：先找现象，不写结果
+Council 可以看较大范围历史数据，但不能输出 trade permission、edge 或 performance。Council 输出不能直接喂成 worker 答案。
 
-worker 可以在授权窗口内探索结构候选：
+## 3. Research Director 切片和派任务
 
-- bars slice；
-- bar lookup；
-- range high / low；
-- wick extreme；
-- close-back-inside；
-- volume facts；
-- 以后可扩展 trades / orderbook / OI / FR facts。
+Director 负责把 Council 的想法变成可执行 blind tasks：
 
-探索模式可以寻找候选现象，但不能写 outcome、performance、win/loss、edge 或 can-trade。
+- 选择具体 `candidate_window`；
+- 决定任务粒度：事件点、短窗口、session、对照窗口或反例窗口；
+- 指定 worker 可用工具和 rubric；
+- 设置 `decision_time` / `evidence_cutoff`；
+- 移除 Council 的倾向性结论和 outcome；
+- 明确 forbidden sources / outputs。
 
-## 3. Judgment mode：每个判断必须留 trace
+Director 不写结构判断，不替 worker 得出结论。
 
-worker 不能只说“这里是 sweep”或“这里是 OB reaction”。每个判断都必须输出 `judgment_trace`。
+## 4. Worker bounded validation
 
-trace 至少回答：
+Worker 在窗口内自主请求 facts：
 
-- 判断类型是什么；
-- `decision_time` 和 `evidence_cutoff` 是什么；
-- 引用了哪些工具事实和 source refs；
-- 满足了哪些规则条款；
-- 哪些条款没满足或模糊；
-- 推理链是什么；
-- 有什么反证和替代解释；
-- 缺什么证据；
-- 置信度是什么；
-- 什么条件会推翻或要求重查；
-- 是否明确没有使用 cutoff 之后的数据支持该判断。
+- OHLCV completed-bar facts；
+- trades adaptive slice facts；
+- OI / funding bounded low-level facts；
+- 后续经过授权的 orderbook facts。
 
-没有 trace 的判断不能进入 trade hypothesis。
+Worker 输出：
 
-## 4. 形成完整 trade hypothesis
+- `judgment_trace`；
+- supporting facts；
+- counter evidence；
+- missing evidence；
+- confidence；
+- `needs_data` / `blocked`；
+- 可选 trade hypothesis fields。
 
-只有在关键判断有 trace 后，worker 才能提出完整 LRF trade hypothesis：
+Worker 不输出 market result、edge、can-trade 或 live entry。
 
-- `premise`
-- `setup_context`
-- `entry_trigger`
-- `entry_price_rule`
-- `invalidation_condition`
-- `stop_rule`
-- `exit_or_target_rule`
-- `cancel_condition`
-- `no_entry_condition`
-- `time_stop`
-- `cost_model_ref`
-- `confidence_label`
+## 5. Falsifier / negative sample pass
 
-如果字段不完整，输出 `needs_data` 或 `blocked`，不能硬写完整战法。
+如果 hypothesis 看起来有价值，必须安排 falsifier 或 negative sample pass：
 
-## 5. Blind challenge and reviewer
+- 找同样形态但失败的窗口；
+- 找 boring/no-entry 样本；
+- 检查是否只挑漂亮图；
+- 检查 trades/OI/funding 是否反证；
+- 检查规则是否太宽导致到处都能解释。
 
-最小盲测结构：
+没有 negative / boring / failure 样本，不得进入 edge 讨论。
 
-1. hypothesis worker：写 LRF trade hypothesis 和 judgment traces。
-2. adversarial worker：使用同一 answer-free 边界和 tool/skill registry 攻击 hypothesis。
-3. reviewer：只审盲测纪律、refs、leakage、trace 完整性、overclaim 和 forbidden claims。
+## 6. Reviewer discipline audit
 
-这些 worker 都不能看 reveal / outcome / judge / performance。它们的输出是 evidence input，不是 authority。
+Reviewer 只审纪律：
 
-## 6. Freeze 后才允许 future judge
+- known-at；
+- source/hash refs；
+- tool_response linkage；
+- partial/truncated usage；
+- worker 是否被暗示；
+- orderbook/funding/OI 是否越权；
+- overclaim / forbidden claims。
+
+Reviewer pass 不等于市场结果正确。
+
+## 7. Freeze 后进入 judge / ledger
 
 顺序必须是：
 
 ```text
-packet freeze
-  -> worker judgment traces freeze
-  -> hypothesis output freeze
-  -> adversarial output freeze
-  -> reviewer discipline freeze
+Council output freeze
+  -> Director task freeze
+  -> worker traces freeze
+  -> falsifier/reviewer freeze
   -> deterministic judge / evaluator reveal
-  -> post-reveal comparison
-  -> failure/cost/no-entry ledger
+  -> ledger records
+  -> cross-case statistics
 ```
 
-不允许 hypothesis worker 在 reveal 后改写理由。
+任何 outcome、win/loss、MFE/MAE、PnL、performance 都只能在 freeze 后出现。
 
-## 7. 输出纪律
+## 8. 下一步分类
 
-每次输出都必须区分：
+每轮结束必须给出下一步分类：
 
-- `observed_fact`
-- `judgment_trace`
-- `hypothesis`
-- `counter_evidence`
-- `missing_evidence`
-- `blocker_classification`
-- `failure_cost_notes`
-- `next_tool_readback_needed`
+- `continue_research`：继续验证该 hypothesis。
+- `seek_counterexamples`：先补 negative / boring / failure 样本。
+- `tool_goal`：缺 deterministic facts 工具。
+- `app_goal`：app readback / endpoint / data family 有问题。
+- `rubric_goal`：判断规则不清。
+- `director_goal`：切片或任务分配不清。
+- `stop_or_archive`：假设证据太弱，先归档。
 
-最终输出只能是研究诊断，不能是交易许可、edge、can-trade、Product GO 或 performance claim。
+不得用“智能体不会研究”这种笼统说法代替可修 blocker。

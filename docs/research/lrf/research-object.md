@@ -1,81 +1,69 @@
 # LRF 研究对象
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
 ## 一句话定义
 
-LRF 研究的是：关键 liquidity / OB / FVG / lost-zone / breaker 附近，市场如何通过局部盘整、扎针、sweep、fake breakout、accept/reject 完成重新定价，以及这种过程能否被建模成可盲测、可反驳、可记录失败成本的交易假设。
+LRF 研究的是：在历史数据中，关键 liquidity / OB / FVG / lost-zone / breaker 附近，市场如何通过局部盘整、扫流动性、假突破、reclaim、displacement、acceptance/rejection 完成重新定价，以及这种过程能否形成可盲测、可反驳、可记账、可跨样本统计的交易假设。
 
-它不是单纯问“某个 OB/FVG 有没有效”，也不是看到突破后解释行情。LRF 的核心是前因后果：
-
-```text
-前置 displacement / sweep / lost-zone / OB / FVG / breaker
-  -> 价格回到关键记忆区
-  -> 局部横盘和上下沿反复试探
-  -> sweep / wick / fake breakout / reclaim / reject
-  -> 形成可定义的入场候选或 no-entry
-  -> 由未来独立 judge 判定触发、失效、出场和成本
-```
-
-## 每个关键对象都可能产生 LRF 单元
-
-owner 的关键纠正是：流动性、OB、FVG 附近都可能出现盘整、扎针、扫流动性、假突破、接受或拒绝。这些局部变化可能才是 LRF 要研究的本质。
-
-因此 LRF 研究单元不是“发现一个 OB”或“发现一个 FVG”就结束，而是：
+LRF 不等于“看见一个 OB/FVG 就解释行情”。LRF 的核心是因果脚本：
 
 ```text
-关键对象
-  -> 回到附近
-  -> 局部供需重估
-  -> range / wick / sweep / fake breakout
-  -> 接受、拒绝、继续盘整、失效或 no-entry
+关键区域或前置结构
+  -> 价格回到附近
+  -> 局部供需重新评估
+  -> sweep / reclaim / fake breakout / acceptance / rejection
+  -> 形成 candidate / no-entry / failure
+  -> freeze 后由 judge / ledger 评价结果和成本
 ```
 
-OB/FVG/liquidity 给出战场；盘整、扎针和失败样本暴露战场内部供需变化；entry / exit / stop / no-entry 把观察变成可检验研究对象。
+## 历史研究对象，不是实时信号
 
-## 判断性概念
+每个 LRF 对象都是历史研究样本：
 
-以下概念主要是判断性概念，不能过早强行公式化：
+- 可以事后被选入研究 universe；
+- 具体判断必须按 decision time / evidence cutoff 模拟当时可知事实；
+- outcome 只能在 freeze 后用于 judge / ledger；
+- 不输出 live entry、can-trade、Product GO 或 edge。
+
+## 关键判断概念
+
+以下概念主要是判断性概念，不能过早写成工具最终标签：
 
 - FVG 是否在当前语境里仍有意义；
-- OB 是否真的构成反应区，而不是事后画框；
+- OB 是否构成反应区，而不是事后画框；
 - liquidity sweep 是否被接受、拒绝或只是噪声；
-- fake breakout 和 true acceptance 的差异；
+- fake breakout 与 true acceptance 的差异；
 - lost-zone reaction 是否说明供需状态切换；
-- displacement quality 是否足够改变局部结构；
-- no-entry 是否比勉强入场更符合规则。
+- displacement quality 是否足以改变局部结构；
+- no-entry 是否比强行入场更符合规则。
 
-这些判断应由 worker agent 根据 skill / rubric 做出。工具只给事实，不直接替 worker 下 smart-money 结论。
+工具只给事实；worker 用 rubric 判断。
 
-## 判断必须可审计
+## 五类证据
 
-每个判断必须有 `judgment_trace`。没有 trace 的判断不能进入后续 trade hypothesis 或 cross-case 统计。
+每个关键研究假设都应映射到五类数据。不可用时必须显式 blocked。
 
-最小 trace 内容：
+- OHLCV：结构、range、sweep、displacement、accept/reject 候选。
+- Trades：主动成交、taker aggression、突破/回收时的成交推动与失败。
+- Orderbook：被动防守、吸收、补单、撤单、接受/拒绝；默认只有经单独授权和稳定性验证后使用。
+- Open Interest：新仓、平仓、挤压、去杠杆、仓位堆积。
+- Funding Rate：拥挤、方向偏置、carry regime；它是背景，不是独立信号。
 
-- `judgment_type`：判断的是 FVG、OB、liquidity sweep、fake breakout、acceptance、lost-zone reaction、displacement 还是 no-entry；
-- `decision_time` 和 `evidence_cutoff`；
-- `observed_facts`：事实、source refs、tool response refs；
-- `applied_rule_clauses`：满足、未满足和模糊的规则条款；
-- `reasoning_chain`：简洁、可复核的推理步骤；
-- `counter_evidence` 和 `alternative_explanations`；
-- `missing_evidence`；
-- `confidence_label`；
-- `invalidation_or_recheck_condition`；
-- `forbidden_future_attestation`。
+OHLCV 可以提出候选，但不能单独证明 smart-money 因果机制。
 
-## 结构观察与战法研究的分界
+## 从结构观察到交易假设
 
-只描述这些现象还不是完整战法研究：
+只描述下面这些还不是完整研究：
 
-- 有一个横盘；
+- 有横盘；
 - 上下沿有扎针；
-- 价格靠近 OB/FVG；
+- 靠近 OB/FVG；
 - 突破后走了一段；
-- 某个位置看起来像假突破。
+- 某个位置像 fake breakout。
 
-完整 LRF 战法研究至少还必须定义：
+完整 LRF 交易假设至少还要定义：
 
 - `entry_trigger`
 - `entry_price_rule`
@@ -89,14 +77,15 @@ OB/FVG/liquidity 给出战场；盘整、扎针和失败样本暴露战场内部
 
 没有这些字段，输出只能叫结构观察，不能叫完整战法研究。
 
-## 五类证据
+## 样本要求
 
-每个关键判断都要映射到五类数据；不可用时必须显式 blocked。
+任何值得继续的 hypothesis 都必须逐步补齐：
 
-- OHLCV：结构、range、sweep、displacement、accept/reject 候选。
-- Trades：主动成交、taker 方向、突破 / 回收时的 aggression。
-- Orderbook：被动防守、吸收、撤单、补单、流动性空洞。
-- Open Interest：新仓、平仓、挤压、去杠杆、仓位堆积。
-- Funding Rate：拥挤、方向偏置、carry regime。
+- candidate samples；
+- no-entry samples；
+- boring samples；
+- failure samples；
+- counterexamples；
+- out-of-sample 或 held-out 计划。
 
-OHLCV 可以提出候选，但不能单独证明 smart-money 因果机制。
+只收集漂亮成功图会直接导致过拟合。

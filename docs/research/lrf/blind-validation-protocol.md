@@ -1,129 +1,131 @@
 # LRF Blind Validation Protocol
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-本文定义 LRF 的盲测、冻结、worker 判断、reviewer 审计和 post-reveal comparison 顺序。
+本文定义 LRF 历史研究中的盲测、信息隔离、freeze、reviewer 和 post-reveal 顺序。
 
 ## 目标
 
-防止 R 或 subagent 事后看答案写故事。每个 hypothesis 必须先在 answer-free known-at 环境中形成判断 trace 和交易假设，再冻结，再由独立 judge / evaluator 在未来阶段判定。
+防止 R 或 subagent 事后看答案写故事。每个 hypothesis 必须先在 answer-free known-at 环境中形成判断 trace，再冻结，再由后续 judge / ledger 看 outcome。
 
 ## 标准顺序
 
 ```text
-Client Mirror First
-  -> answer-free packet construction
-  -> worker runtime contract
-  -> packet and runtime freeze
+source binding / source manifest
+  -> Global Research Council hypothesis draft
+  -> Director task packet
+  -> answer-free runtime contract
   -> worker tool requests and judgment traces
-  -> blind trade hypothesis
-  -> blind adversarial challenge
+  -> falsifier / negative sample challenge
   -> reviewer discipline audit
-  -> A/B/Reviewer freeze
+  -> freeze
   -> deterministic judge / evaluator reveal
   -> post-reveal comparison
-  -> failure/cost/no-entry ledger
+  -> failure / cost / no-entry ledger
   -> cross-case research summary
 ```
 
-不能跳过 freeze 边界。
+不得跳过 freeze 边界。
 
-## Answer-free 要求
+## Answer-free 不是不给数据
 
-answer-free 不是不给数据，而是不给答案。worker 可以通过授权工具读取 known-at / cutoff 内的数据事实。
+Answer-free 的意思是不给答案，不是不给历史数据。
 
-answer-free packet 和 runtime 可以包含：
+允许给 worker：
 
-- app readback refs；
-- projection generation；
-- bounded time window；
-- client mirror limitation；
-- authorized data source；
-- tool registry；
-- skill / rubric registry；
-- known-at cursor policy；
-- missing evidence；
-- source hashes。
+- bounded historical window；
+- app-owned source refs；
+- allowed tool registry；
+- allowed rubric registry；
+- known-at policy；
+- missing data family notes；
+- source hashes；
+- candidate task objective。
 
-answer-free packet 和 runtime 不得包含：
+禁止给 worker：
 
-- 后续走势作为答案；
+- future path；
 - outcome；
-- reveal；
-- 成功/失败标签；
+- success/failure label；
 - judge result；
-- post-reveal comparison；
-- performance、edge、can-trade。
+- performance；
+- edge / can-trade；
+- Council 对该窗口的倾向性结论；
+- 其他 worker 的判断结果。
+
+## Council 与 worker 的隔离
+
+Council 可以讨论“哪些方法可能赚钱”，但必须把输出降级为可证伪 hypothesis 和 verification tasks。Blind worker 只能看到清洗后的任务包。
+
+错误做法：
+
+```text
+Council: 这里很可能是成功的 sell-side sweep long。
+Worker: 请证明这里是成功 long。
+```
+
+正确做法：
+
+```text
+Director task:
+  判断 2026-06-14T20:30Z 到 22:30Z 是否存在
+  sell-side sweep -> reclaim -> displacement 的结构条件。
+  只使用 cutoff 前 facts。
+  输出支持、反证、缺失证据和 confidence。
+```
 
 ## Worker 分工
 
-### Hypothesis worker
+### Hypothesis / structure worker
 
-任务：
-
-- 自主选择允许的 tools 和 rubrics；
+- 请求 facts；
+- 判断结构；
 - 输出 `judgment_trace`；
-- 写 LRF trade hypothesis；
-- 定义 entry / invalidation / stop / exit / cancel / no-entry；
-- 区分 observed fact、judgment 和 hypothesis；
-- 标 missing evidence。
+- 可在证据足够时形成 trade hypothesis fields；
+- 不看 outcome。
 
-### Adversarial worker
+### Falsifier worker
 
-任务：
-
-- 使用同一 answer-free 边界攻击 hypothesis；
-- 可以独立请求允许的工具事实；
-- 指出 fake breakout、overclaim、缺数据、成本和 no-entry 风险；
-- 不看 reveal；
-- 不判市场结果。
+- 找反证；
+- 找 no-entry / boring / failure；
+- 检查规则是否过宽；
+- 检查数据族是否反向支持。
 
 ### Reviewer worker
 
-任务：
+- 审 blind discipline；
+- 审 refs、cutoff、partial/truncated；
+- 审 overclaim；
+- 审 Council/Director 是否暗示。
 
-- 审 A/B 是否遵守盲测纪律；
-- 审 refs 是否存在；
-- 审 tool response 是否被正确引用；
-- 审 judgment trace 是否完整；
-- 审是否有 answer leakage；
-- 审是否 overclaim。
-
-Reviewer 不负责市场结果判定。它不是 deterministic judge。
+Reviewer 不是 deterministic judge。
 
 ## Judge / evaluator
 
-Judge 优先由 deterministic tool / evaluator 执行。
+Judge / evaluator 只能在 freeze 后运行。它可以回答：
 
-Judge 只能在 packet、runtime、judgment traces、A/B/Reviewer 输出冻结后运行。
-
-Judge 判定：
-
-- 是否触发 entry；
-- 是否 no-entry；
-- 是否 stop；
-- 是否 exit；
-- 是否 cancel；
-- 是否 timeout；
+- entry 是否触发；
+- stop / exit / cancel / timeout 是否发生；
 - MAE / MFE / cost；
-- judge reason。
+- no-entry 是否成立；
+- failure reason。
 
-Judge 不解释 smart-money 机制，只执行已定义规则。
+Judge 不回答：
+
+- 是否可以实盘交易；
+- 是否已经有 edge；
+- 是否 Product GO；
+- 是否 live-ready。
 
 ## Post-reveal comparison
 
-post-reveal comparison 只能回答：
+Post-reveal comparison 只能用于诊断：
 
-- hypothesis 的哪些部分被数据支持、部分支持或不支持；
-- adversarial critique 是否指出真实失败点；
-- Reviewer 是否漏掉 leakage / overclaim / trace 缺口；
+- hypothesis 哪些条件有用；
+- falsifier 是否抓住真实失败点；
+- reviewer 是否漏掉纪律问题；
 - ledger 是否完整；
-- 下一轮 packet / runtime / tool / rubric / protocol 应修什么。
+- 下一轮该修 tool、rubric、Director 切片，还是放弃 hypothesis。
 
-不能回答：
-
-- 是否可以交易；
-- 是否有 edge；
-- 是否 Product GO；
-- 是否 live-ready。
+它不能把单次结果升级为赚钱结论。

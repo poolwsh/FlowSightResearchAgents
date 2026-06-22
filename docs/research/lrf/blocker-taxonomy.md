@@ -1,90 +1,134 @@
 # LRF Blocker Taxonomy
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-LRF 研究必须区分不同 blocker，不能把 app 能力、数据覆盖、R 使用问题、R 方法问题和 owner 授权问题混成一句“不能研究”。
+LRF 研究必须区分不同 blocker。不能把 app 能力、数据覆盖、R 使用问题、工具缺口、worker 问题、Director 切片问题、skill/rubric 问题和 owner 授权问题混成一句“不能研究”。
 
-## `APP_BLOCKED`
+## `APP_CAPABILITY_GAP`
 
-FlowSight app / CLI / projection / endpoint 缺少必要 primitive。
-
-例子：
-
-- CLI 不暴露 owner UI 的 drawing / rectangle / selected bar；
-- app 不暴露 orderbook readback primitive；
-- projection 无法提供 required known-at feature；
-- deterministic judge 所需 evaluator primitive 尚不存在。
-
-## `DATA_BLOCKED`
-
-底层数据缺失、覆盖不足、质量不足或目标窗口不可用。
+FlowSight app / CLI / projection / endpoint 缺少必要 public primitive，或 readback 稳定性不足。
 
 例子：
 
-- 指定窗口没有 trades；
-- OI / FR 覆盖不到目标交易所或时间；
-- orderbook 数据缺失，无法验证吸收 / 补单 / 撤单；
-- reveal / evaluation window 缺少判定 trigger / stop / exit 所需字段。
+- public CLI 没有某数据族 readback route；
+- endpoint 对某 route 持续 timeout；
+- projection 不暴露 owner UI referent；
+- evaluator primitive 不存在。
 
-## `R_APP_USAGE_GAP`
+注意：只有 app-side 证据支持时才能归为 app gap。不能因为 R 不会用就怪 app。
 
-app / CLI 已有能力，但 R 没有正确使用、绑定或读回。
+## `APP_DISCOVERY_GAP`
 
-例子：
+App 已有能力，但 ResearchAgents 不知道 route、contract、selector 或 binding 方式。
 
-- owner 指向 UI rectangle，CLI 已能读 drawing state，但 R 没跑 Client Mirror First；
-- app 已提供 projection generation，R 却用外部 raw bars 替代 app readback；
-- app 已能读同一 symbol/timeframe/visible range，R 却把 CLI 读回当成和 UI 脱离的另一份数据。
+必须有证据表明 app/CLI 已存在相关能力。不能凭“可能有”猜成 discovery gap。
 
-## `R_METHOD_GAP`
+## `DATA_FAMILY_GAP`
 
-R 缺研究流程、判断方法、worker runtime、case 结构或解释纪律。
+底层数据族在目标 symbol/window/source 中不可用、覆盖不足或质量不够。
 
 例子：
 
-- 看到突破就解释，没先定义前因、关键区和横盘；
-- 只记录成功样本，不记录 fake breakout、stop-out、no-entry；
-- 没有 entry / exit / stop / invalidation 就声称完成战法研究；
-- hypothesis writer 看到 reveal / outcome；
-- 让写 hypothesis 的 Agent 自己当裁判；
-- Reviewer Agent 替代 deterministic judge 判市场结果；
-- 把 OHLCV 候选直接写成 smart-money 机制验证；
-- worker 没有 tool registry / skill registry，只能填表；
-- worker 判断 FVG / OB / liquidity / acceptance 时没有 `judgment_trace`；
-- 判断没有 evidence refs、reasoning chain、counter evidence 或 known-at cutoff；
-- R 替 worker 预选答案结构，然后让 worker 补理由。
+- 指定窗口无 trades；
+- OI / funding 覆盖不到；
+- orderbook 缺失；
+- app route 正常但返回 structured no data。
 
-常用子类：
+## `TOOL_MISSING_GAP`
 
-- `R_WORKER_RUNTIME_GAP`
-- `R_TOOL_REGISTRY_GAP`
-- `R_SKILL_RUBRIC_GAP`
-- `R_JUDGMENT_TRACE_GAP`
-- `R_KNOWN_AT_GAP`
+ResearchAgents 缺少把 app-owned payload 转成 deterministic facts 的工具。
 
-这些子类仍属于 `R_METHOD_GAP`，不是 app gap。
+例子：
+
+- trades route 可用，但没有 adaptive slicing facts；
+- funding/OI payload 可读，但没有低层 facts 工具；
+- orderbook route 可用后，缺少 absorption/replenishment facts。
+
+## `TOOL_SHAPE_GAP`
+
+工具存在，但不能消费当前 app payload shape，或 known-at / truncation / coverage 语义错误。
+
+例子：
+
+- `ohlcv_facts.py` 读 current app bars 得到 `bar_count=0`；
+- full OHLCV bar 在 open time 被当成已知；
+- saved trades payload 缺 coverage metadata 却被当 complete。
+
+## `WORKER_TOOL_USE_GAP`
+
+工具和 registry 已可用，但 worker 没有发出合理 tool_request，或错误使用 tool_response。
+
+例子：
+
+- worker 有 trades facts 工具却只写 prose；
+- worker 引用不存在的 tool_response；
+- worker 把 partial/truncated 当 complete。
+
+## `SKILL_RUBRIC_GAP`
+
+判断规则不清，导致 worker 无法区分支持、反证、ambiguous 和 no-entry。
+
+例子：
+
+- fake breakout vs acceptance 没有规则；
+- displacement quality 没有必要证据；
+- funding/OI context 被当成独立信号。
+
+## `DIRECTOR_ORCHESTRATION_GAP`
+
+Research Director 没有正确切片、派任务或隔离信息。
+
+例子：
+
+- 直接给 worker 8 天数据让它自由发挥；
+- 只给单根 K 线导致上下文不足；
+- 把 Council 的倾向性结论喂给 blind worker；
+- 没有 negative / boring / failure 样本任务。
+
+## `EVIDENCE_LINKAGE_GAP`
+
+Source refs、tool responses、hash、cutoff、judgment trace 链路缺失或不一致。
+
+例子：
+
+- judgment trace 引用的 response 不存在；
+- tool_response cutoff 晚于 trace cutoff；
+- payload hash 没记录；
+- request/response 没法复现。
+
+## `OWNER_INPUT_GAP`
+
+owner/dispatcher 尚未提供必要输入或授权。
+
+例子：
+
+- 没有 explicit CLI / endpoint / app selector；
+- 没有授权 launch/bind；
+- 没有给 bounded research window；
+- 没有授权 active skill/tool/doc 变更。
 
 ## `OWNER_POLICY_GAP`
 
-owner 尚未授权、研究边界未定，或是否可提升为正式 truth 未定。
+是否允许进入某阶段尚未明确。
 
 例子：
 
-- notes 草稿尚未授权进入 `docs/**`；
-- active skill/tool 尚未授权写入 `agent-system/**`；
-- 是否允许某类数据读取或跨 case 扫描尚未明确；
-- 是否进入 formal research packet 尚未授权。
+- 是否允许 docs promotion；
+- 是否允许 formal research packet；
+- 是否允许 judge/ledger；
+- 是否允许 app-side repair lane。
 
 ## 使用要求
 
 每个 blocker 至少写：
 
-- blocker 类型；
-- 可选子类；
+- `primary_classification`，只能一个；
+- `secondary_classifications`；
+- evidence refs；
 - 触发位置；
 - 缺失字段、能力或纪律；
-- 当前可以继续做什么；
-- 下一步需要 owner、C、app-side、data-side 还是 R 处理。
+- 当前还能继续做什么；
+- 下一步由 owner、APP Review/C、app-side、data-side 还是 R 处理。
 
-不能用 blocker 掩盖 R 自己的研究偷懒。如果 app 已暴露能力但 R 没用，应标 `R_APP_USAGE_GAP`。如果 R 跳过 trace、known-at、entry / exit / stop / failure / no-entry / blind discipline，应标 `R_METHOD_GAP`。
+不能用 blocker 掩盖 R 自己的研究偷懒。如果 app 已暴露能力但 R 没用，是 `APP_DISCOVERY_GAP` 或 `R_APP_USAGE_GAP`。如果 worker 被扔进一堆数据不知道研究哪，是 `DIRECTOR_ORCHESTRATION_GAP`。

@@ -1,64 +1,59 @@
 # Research 当前真相
 
 Status: current_truth
-Updated: 2026-06-21
+Updated: 2026-06-22
 
-本目录保存 ResearchAgents 当前研究方向和方法边界。
+本目录保存 ResearchAgents 的当前研究方向、研究组织方式和方法边界。
 
 ## 当前研究对象
 
-- `lrf/`：围绕 liquidity、OB、FVG、lost-zone、盘整、扎针、sweep、fake breakout、accept/reject 的 LRF / ICT / smart-money 研究。
+- `lrf/`：围绕 liquidity、OB、FVG、lost-zone、sweep、fake breakout、acceptance/rejection、trades、OI、funding 的 LRF / ICT / smart-money 历史研究。
 
 ## 默认研究模型
 
-R 的默认研究顺序是：
+ResearchAgents 的默认研究顺序是：
 
 ```text
-research objective
-  -> Client Mirror First
-  -> bounded answer-free data access
-  -> worker chooses tools and judgment rubrics
-  -> deterministic facts from tools
-  -> LLM judgment with trace
-  -> complete trade hypothesis fields
-  -> blind challenge and discipline review
-  -> future deterministic judge / ledger
-  -> cross-case research diagnosis
+historical research objective
+  -> app-owned source binding / data readback
+  -> Global Research Council 提出 hypothesis 和 candidate windows
+  -> Research Director 把 hypothesis 拆成 blind validation tasks
+  -> worker 在 bounded known-at runtime 内请求 deterministic facts
+  -> worker 产出 judgment_trace
+  -> reviewer 审计证据链、暗示污染、future leakage 和 overclaim
+  -> freeze
+  -> 后续 deterministic judge / ledger / statistics
 ```
 
-这个顺序的目的，是防止 R 看到 owner 指向的现象后直接临场解释，也防止先看到后续涨跌再回头编故事。
+这个顺序的目的，是防止两种常见失败：
 
-## 判断不是公式，也不是拍脑袋
+1. R 或 worker 看到一段漂亮走势后回头编故事。
+2. Worker 不知道该研究哪段，只能对大段数据做散文式评论。
 
-LRF 里的 FVG、OB、liquidity sweep、fake breakout、acceptance、lost-zone reaction 等概念，主要是判断性概念。它们不应该被过早写成僵硬公式，让工具直接吐出最终标签。
+## 历史研究和实时交易的区别
 
-正确分工是：
+本工作区做历史研究：
 
-- tools 给确定事实和可复核 source refs；
-- skills / rubrics 给 Agent 判断规则；
-- worker agent 自己选择工具和判断规则；
-- 每个判断必须输出 `judgment_trace`；
-- known-at cutoff 防止偷看未来；
-- reviewer 审纪律，不当市场结果裁判。
+- 可以在历史 universe 里找候选结构；
+- 每个具体判断必须模拟当时的 known-at；
+- 可以在 freeze 后用未来 outcome 做 judge / ledger；
+- 目标是发现和反证可能的赚钱方法。
 
-## 从图表观察到研究流程
+本工作区不做实时交易：
 
-当 owner 指向一段 app 行情、一个时间点、一个矩形或一个横盘，R 必须先把它放回研究对象的因果链。
+- 不根据最新行情发入场信号；
+- 不接 broker / OMS / live-order；
+- 不输出 can-trade、Product GO 或 performance claim；
+- 不把单次 worker pass 当 edge。
 
-对当前 LRF，这意味着：
+## 数据与判断分工
 
-- 先做 Client Mirror First；
-- 再给 worker 一个 bounded objective 和可用工具/skill registry；
-- worker 自己查 K 线、区间、扎针、收回、成交量等事实；
-- worker 用规则判断 liquidity / OB / FVG / fake breakout / acceptance；
-- 每个判断留下证据链、反证、缺失证据和置信度；
-- 再形成完整 entry / invalidation / stop / exit / no-entry 字段；
-- 最后才进入未来 judge / ledger / cross-case 验证。
+- Tools 只产出 deterministic facts 和 source/hash/cutoff refs。
+- Skills / rubrics 定义 LLM 判断规则。
+- Global Research Council 提出候选研究方向，但不能给 blind worker 喂答案。
+- Research Director 选择窗口、拆任务、控制信息隔离。
+- Blind Worker 在有限窗口内自主请求 facts 并写 judgment_trace。
+- Reviewer 审纪律，不审市场是否赚钱。
+- Judge / ledger / statistics 只能在 freeze 后进入。
 
 具体规则见 `lrf/`。
-
-## 当前约束
-
-- 先有研究思路，再找因果链，再用数据验证。
-- 数据用于验证 causal script possibility / failure mode，不直接产生交易许可。
-- 任何 cross-case 统计只能用于判断是否值得继续研究或是否有统计支撑，不能提前暗示 edge。
