@@ -33,6 +33,44 @@ def text_hash(value: str) -> str:
     return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 
+def file_digest(path: str) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def empty_source_hashes() -> dict[str, str]:
+    return {"raw_source_hash": "", "normalized_source_hash": ""}
+
+
+def hash_semantics() -> dict[str, str]:
+    return {
+        "response_id": "canonical tool response identity; when request_id is present use <tool_id>:<request_id>:response",
+        "response_id_source": "identity source enum: explicit, derived_from_request_id, or derived_from_payload_core",
+        "request_id": "broker request identity; not the primary trace reference",
+        "raw_source_hash": "sha256 over exact saved source artifact bytes or canonical app response payload hash bundle",
+        "normalized_source_hash": "sha256 over canonical normalized rows/facts consumed by this tool",
+        "output_hash": "sha256 over the emitted response payload with output_hash fields blank before hashing",
+    }
+
+
+def response_id_for(payload: dict[str, Any]) -> str:
+    request_id = str(payload.get("request_id") or "")
+    tool_id = str(payload.get("tool_id") or TOOL_ID)
+    if request_id:
+        return f"{tool_id}:{request_id}:response"
+    core = dict(payload)
+    for key in ("response_id", "identity", "output_ref", "output_hash"):
+        core.pop(key, None)
+    return f"{tool_id}:response:{digest(core)[:16]}"
+
+
+def response_id_source_for(payload: dict[str, Any]) -> str:
+    if payload.get("response_id"):
+        return "explicit"
+    if payload.get("request_id"):
+        return "derived_from_request_id"
+    return "derived_from_payload_core"
+
+
 def forbidden_attestation() -> dict[str, bool]:
     return {
         "no_orderbook": True,
@@ -81,9 +119,23 @@ def read_json(path: str) -> Any:
 
 def with_hash(payload: dict[str, Any], output_ref: str = "") -> dict[str, Any]:
     payload = dict(payload)
+    response_id_source = response_id_source_for(payload)
+    if not payload.get("response_id"):
+        payload["response_id"] = response_id_for(payload)
     payload["output_ref"] = output_ref
+    payload.setdefault("source_hashes", empty_source_hashes())
+    payload.setdefault("hash_semantics", hash_semantics())
+    payload["identity"] = {
+        "response_id": payload["response_id"],
+        "response_id_source": response_id_source,
+        "request_id": payload.get("request_id", ""),
+        "output_ref": output_ref,
+        "output_hash": "",
+    }
     payload["output_hash"] = ""
-    payload["output_hash"] = digest(payload)
+    output_hash = digest(payload)
+    payload["output_hash"] = output_hash
+    payload["identity"]["output_hash"] = output_hash
     return payload
 
 
@@ -102,6 +154,7 @@ def blocked_payload(reason: str, request_id: str = "", evidence_cutoff: str = ""
     return {
         "tool_id": TOOL_ID,
         "request_id": request_id,
+        "response_id": "",
         "status": status,
         "source_ref": "",
         "observation_summary": {},
@@ -109,7 +162,9 @@ def blocked_payload(reason: str, request_id: str = "", evidence_cutoff: str = ""
         "cutoff_respected": True,
         "blocked_reason": reason,
         "adaptive_slices": [],
-        "source_hashes": [],
+        "source_hashes": empty_source_hashes(),
+        "legacy_source_hashes": [],
+        "hash_semantics": hash_semantics(),
         "forbidden_attestation": forbidden_attestation(),
     }
 
@@ -431,7 +486,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
     if args.mode == "adaptive_time_buckets" and (args.bucket_ms is None or args.bucket_ms <= 0):
         return blocked_payload("--bucket-ms is required for adaptive_time_buckets", args.request_id, args.evidence_cutoff)
 
-    source_hashes: list[str] = []
+    raw_source_hashes: list[str] = []
     adaptive_slices: list[dict[str, Any]] = []
     rows: list[dict[str, Any]] = []
     complete = False
@@ -440,7 +495,7 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
 
     if args.input:
         raw = read_json(args.input)
-        source_hashes.append(digest(raw))
+        raw_source_hashes.append(file_digest(args.input))
         if payload_channel(raw) not in ("", "trades"):
             return blocked_payload("input payload is not trades channel", args.request_id, args.evidence_cutoff)
         if payload_truncated(raw):
@@ -471,16 +526,36 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
             return blocked_payload("--cli-command, --app, --endpoint-dir, and --symbol are required in app CLI mode", args.request_id, args.evidence_cutoff)
         payloads, adaptive_slices, blocked_reason = adaptive_query(args, start_ms, end_ms, cutoff_ms)
         for payload in payloads:
-            source_hashes.append(digest(payload))
+            raw_source_hashes.append(digest(payload))
             rows.extend(filter_rows(extract_rows(payload), start_ms, end_ms, cutoff_ms))
         complete = not blocked_reason
 
     rows = sorted(rows, key=lambda item: int(row_time_ms(item) or 0))
     status = "ok" if complete else ("partial" if rows else "blocked")
     observation = build_observation(rows, adaptive_slices, args, complete) if rows else {}
+    raw_source_hash = ""
+    if len(raw_source_hashes) == 1:
+        raw_source_hash = raw_source_hashes[0]
+    elif raw_source_hashes:
+        raw_source_hash = digest(raw_source_hashes)
+    normalized_source_hash = digest(
+        {
+            "mode": args.mode,
+            "requested_start": args.start,
+            "requested_end": args.end,
+            "evidence_cutoff": args.evidence_cutoff,
+            "price_low": args.price_low,
+            "price_high": args.price_high,
+            "bucket_ms": args.bucket_ms,
+            "large_print_qty_threshold": args.large_print_qty_threshold,
+            "rows": rows,
+            "facts": observation.get("facts", {}) if observation else {},
+        }
+    ) if rows else ""
     return {
         "tool_id": TOOL_ID,
         "request_id": args.request_id,
+        "response_id": "",
         "status": status,
         "source_ref": source_ref,
         "observation_summary": observation,
@@ -488,7 +563,12 @@ def build_payload(args: argparse.Namespace) -> dict[str, Any]:
         "cutoff_respected": all((row_known_at_ms(row) is not None and int(row_known_at_ms(row) or 0) <= cutoff_ms) for row in rows),
         "blocked_reason": blocked_reason,
         "adaptive_slices": adaptive_slices,
-        "source_hashes": source_hashes,
+        "source_hashes": {
+            "raw_source_hash": raw_source_hash,
+            "normalized_source_hash": normalized_source_hash,
+        },
+        "legacy_source_hashes": raw_source_hashes,
+        "hash_semantics": hash_semantics(),
         "forbidden_attestation": forbidden_attestation(),
     }
 

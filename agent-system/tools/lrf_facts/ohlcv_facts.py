@@ -24,6 +24,44 @@ def digest(value: Any) -> str:
     return hashlib.sha256(canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def file_digest(path: str) -> str:
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def empty_source_hashes() -> dict[str, str]:
+    return {"raw_source_hash": "", "normalized_source_hash": ""}
+
+
+def hash_semantics() -> dict[str, str]:
+    return {
+        "response_id": "canonical tool response identity; when request_id is present use <tool_id>:<request_id>:response",
+        "response_id_source": "identity source enum: explicit, derived_from_request_id, or derived_from_payload_core",
+        "request_id": "broker request identity; not the primary trace reference",
+        "raw_source_hash": "sha256 over the exact source artifact bytes when a source artifact exists",
+        "normalized_source_hash": "sha256 over canonical normalized source rows/facts consumed by this tool",
+        "output_hash": "sha256 over the emitted response payload with output_hash fields blank before hashing",
+    }
+
+
+def response_id_for(payload: dict[str, Any]) -> str:
+    request_id = str(payload.get("request_id") or "")
+    tool_id = str(payload.get("tool_id") or TOOL_ID)
+    if request_id:
+        return f"{tool_id}:{request_id}:response"
+    core = dict(payload)
+    for key in ("response_id", "identity", "output_ref", "output_hash"):
+        core.pop(key, None)
+    return f"{tool_id}:response:{digest(core)[:16]}"
+
+
+def response_id_source_for(payload: dict[str, Any]) -> str:
+    if payload.get("response_id"):
+        return "explicit"
+    if payload.get("request_id"):
+        return "derived_from_request_id"
+    return "derived_from_payload_core"
+
+
 def forbidden_attestation() -> dict[str, bool]:
     return {
         "no_reveal": True,
@@ -108,9 +146,23 @@ def normalize_bars(rows: Any) -> list[dict[str, Any]]:
 
 def with_hash(payload: dict[str, Any], output_ref: str = "") -> dict[str, Any]:
     payload = dict(payload)
+    response_id_source = response_id_source_for(payload)
+    if not payload.get("response_id"):
+        payload["response_id"] = response_id_for(payload)
     payload["output_ref"] = output_ref
+    payload.setdefault("source_hashes", empty_source_hashes())
+    payload.setdefault("hash_semantics", hash_semantics())
+    payload["identity"] = {
+        "response_id": payload["response_id"],
+        "response_id_source": response_id_source,
+        "request_id": payload.get("request_id", ""),
+        "output_ref": output_ref,
+        "output_hash": "",
+    }
     payload["output_hash"] = ""
-    payload["output_hash"] = digest(payload)
+    output_hash = digest(payload)
+    payload["output_hash"] = output_hash
+    payload["identity"]["output_hash"] = output_hash
     return payload
 
 
@@ -129,12 +181,15 @@ def blocked_payload(reason: str, request_id: str = "", evidence_cutoff: str = ""
     return {
         "tool_id": TOOL_ID,
         "request_id": request_id,
+        "response_id": "",
         "status": "blocked",
         "source_ref": "",
         "observation_summary": {},
         "evidence_cutoff": evidence_cutoff,
         "cutoff_respected": True,
         "blocked_reason": reason,
+        "source_hashes": empty_source_hashes(),
+        "hash_semantics": hash_semantics(),
         "forbidden_attestation": forbidden_attestation(),
     }
 
@@ -308,7 +363,16 @@ def wick_close_back_facts(bars: list[dict[str, Any]], price_high: float | None, 
 def build_payload(args: argparse.Namespace, raw: Any) -> dict[str, Any]:
     selected = select_bars(raw, args.start, args.end, args.evidence_cutoff)
     export = extract_export(raw)
-    source_hash = digest(raw)
+    normalized_source = {
+        "symbol": export.get("symbol", ""),
+        "venue": export.get("venue", ""),
+        "timeframe": export.get("timeframe", ""),
+        "source_shape": export.get("source_shape", ""),
+        "known_at_policy": export.get("known_at_policy", ""),
+        "bars": bars_from_export(raw),
+    }
+    raw_source_hash = file_digest(args.input) if args.input else digest(raw)
+    normalized_source_hash = digest(normalized_source)
     if args.mode == "bars_slice":
         summary: dict[str, Any] = {
             "mode": args.mode,
@@ -329,11 +393,12 @@ def build_payload(args: argparse.Namespace, raw: Any) -> dict[str, Any]:
     return {
         "tool_id": TOOL_ID,
         "request_id": args.request_id,
+        "response_id": "",
         "status": "ok",
         "source_ref": args.input,
         "observation_summary": {
             "artifact_kind": "ohlcv_fact_response.v1",
-            "source_hash": source_hash,
+            "source_hash": normalized_source_hash,
             "symbol": export.get("symbol", ""),
             "venue": export.get("venue", ""),
             "timeframe": export.get("timeframe", ""),
@@ -341,6 +406,11 @@ def build_payload(args: argparse.Namespace, raw: Any) -> dict[str, Any]:
             "requested_end": args.end,
             "mode_result": summary,
         },
+        "source_hashes": {
+            "raw_source_hash": raw_source_hash,
+            "normalized_source_hash": normalized_source_hash,
+        },
+        "hash_semantics": hash_semantics(),
         "evidence_cutoff": args.evidence_cutoff,
         "cutoff_respected": all(in_window(bar, "", "", args.evidence_cutoff) for bar in selected),
         "blocked_reason": "",

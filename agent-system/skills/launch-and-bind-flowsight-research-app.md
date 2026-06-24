@@ -133,6 +133,73 @@ or:
 
 `APP_CONTEXT_MISMATCH`
 
+## App-Side Issue Escalation
+
+If launch, binding, app-owned CLI readiness, endpoint liveness, app-context
+readback, projection readback, or later app-owned readback exposes an app-side
+problem, R must not repair or work around FlowSight app internals.
+
+Instead, produce an APP Review issue packet and send it to the APP Review / C
+session for app-side classification.
+
+Escalate when evidence indicates:
+
+- launch script or release CLI cannot start a clean/promotable app;
+- endpoint is created but `app list --json` cannot select the launched pid;
+- endpoint liveness degrades after an app-owned readback;
+- `app-context get` or projection readback fails despite a live pid;
+- app-owned CLI route exists but times out, returns malformed JSON, omits
+  required known-at/source/hash/completeness fields, or breaks binding;
+- orderbook readback causes timeout or endpoint instability;
+- public readback contract appears inconsistent with app-side behavior.
+
+Do not escalate ordinary stale binding as an app bug. A previously launched pid
+that is no longer live is `APP_BINDING_UNAVAILABLE` and should normally be
+handled by a fresh reviewed launch-bind GOAL or owner-provided fresh binding.
+
+Minimum APP Review issue packet:
+
+```json
+{
+  "issue_type": "app_side_issue_report",
+  "classification_candidate": "APP_LAUNCH_GAP | APP_ENDPOINT_STABILITY_GAP | APP_CONTEXT_READBACK_GAP | APP_READBACK_CONTRACT_GAP | APP_ROUTE_TIMEOUT | APP_CLIENT_PARITY_GAP",
+  "source_goal_or_run_ref": "",
+  "release_name": "",
+  "release_dir": "",
+  "app_sha": "",
+  "promotable": false,
+  "dirty_worktree": false,
+  "cli_command": "",
+  "endpoint_dir": "",
+  "app_selector": "",
+  "commands": [
+    {
+      "argv": [],
+      "env": {},
+      "exit_code": null,
+      "stdout_sha256": "",
+      "stderr_sha256": "",
+      "parsed_status": "",
+      "error_code": ""
+    }
+  ],
+  "observed_problem": "",
+  "expected_contract": "",
+  "r_boundary_attestation": {
+    "no_app_source_edits": true,
+    "no_raw_db": true,
+    "no_external_api": true,
+    "no_relaunch_unless_authorized": true,
+    "no_product_go": true,
+    "no_edge_or_can_trade": true
+  },
+  "requested_app_review": "classify app-side issue and recommend app-lane repair, retest, or R usage correction"
+}
+```
+
+The issue packet is operational evidence only. It is not market evidence, not a
+research packet, and not permission for R to edit FlowSight app source.
+
 ## Binding Packet Output
 
 Return JSON-compatible structured output:
@@ -183,6 +250,12 @@ Return JSON-compatible structured output:
     "command_ref": "",
     "output_hash": ""
   },
+  "app_side_issue": {
+    "issue_report_required": false,
+    "issue_report_ref": "",
+    "classification_candidate": "",
+    "reported_to_app_review": false
+  },
   "limitations": [],
   "forbidden_attestation": {
     "not_formal_verifier_authority": true,
@@ -211,8 +284,15 @@ Use these blockers instead of guessing:
 - `LAUNCH_SCRIPT_MISSING`
 - `LAUNCH_FAILED`
 - `ENDPOINT_NOT_READY`
+- `APP_BINDING_UNAVAILABLE`
 - `APP_CONTEXT_NOT_PUBLISHED`
 - `APP_CONTEXT_MISMATCH`
+- `APP_LAUNCH_GAP`
+- `APP_ENDPOINT_STABILITY_GAP`
+- `APP_CONTEXT_READBACK_GAP`
+- `APP_READBACK_CONTRACT_GAP`
+- `APP_ROUTE_TIMEOUT`
+- `APP_CLIENT_PARITY_GAP`
 - `DISPATCHER_FORMAL_INPUT_REQUIRED`
 - `FORMAL_BINDING_PACKET_MISSING`
 - `DIRTY_RELEASE_EXPLORATORY_ONLY`
@@ -228,6 +308,9 @@ Do not:
 - launch without explicit owner or dispatcher authorization;
 - use owner discussion or GOAL drafting as launch authorization;
 - treat human quick-launch as agent binding;
+- silently absorb app-side launch/endpoint/readback problems as research
+  failure;
+- repair FlowSight app issues from R instead of reporting them to APP Review;
 - edit FlowSight app source;
 - edit verifier, release, dispatcher, or endpoint internals;
 - build a release;
@@ -262,6 +345,9 @@ Before handing a binding packet to another GOAL, validate:
 - app selector is present;
 - context assertion was attempted before market-data discovery;
 - symbol/timeframe match if required;
+- app-side issue packet is present and reported to APP Review when launch,
+  endpoint, context, projection, or app-owned readback behavior indicates an
+  app-side blocker;
 - limitations are explicit;
 - forbidden attestations are true.
 
@@ -284,4 +370,3 @@ The next GOAL may consume the binding packet to populate:
 
 This skill does not choose the market window or research target. Owner or the
 next GOAL must supply those values.
-

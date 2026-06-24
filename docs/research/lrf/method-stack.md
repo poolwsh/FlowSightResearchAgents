@@ -1,21 +1,32 @@
 # LRF 方法栈
 
 Status: current_truth
-Updated: 2026-06-22
+Updated: 2026-06-24
 
-LRF 研究分成 docs、workflows、skills、templates、tools、reviews、runs 七层。docs 是当前事实源；其他执行材料必须从 docs 派生，不能从单次 run、旧习惯或临场判断反向定义研究方向。
+LRF 研究的权威链分为五个语义层级：
+
+```text
+research thesis / 市场机制假设
+  -> research framework / docs current truth
+  -> skills / rubrics / workflows
+  -> tools / deterministic fact providers
+  -> runs / evidence artifacts
+```
+
+`research-thesis.md` 拥有最高研究语义权威，回答“为什么这些变量值得研究”。Docs/framework 回答“如何组织研究”。Skills、workflows、templates、tools、reviews、runs 都必须从 docs 派生，不能从单次 run、旧习惯或临场判断反向定义研究方向。
+
+执行材料可以发现 blocker、counterexample 或 docs-change proposal；它们不能在 active run 中临场改写 thesis 或 framework。
 
 ## docs
 
 `docs/**` 保存长期研究真相：
 
+- market mechanism / research thesis；
 - 研究对象；
-- 研究智能体组织模型；
-- worker runtime；
+- 第一版 Price Action + CVD/Delta + Orderbook 战法；
+- 三层模型；
+- 研究流程；
 - judgment trace；
-- trade-hypothesis protocol；
-- blind validation protocol；
-- ledger requirements；
 - blocker taxonomy；
 - 方法栈边界。
 
@@ -42,10 +53,9 @@ LRF workflow 必须保证：
 7. falsifier / negative sample pass；
 8. reviewer discipline audit；
 9. freeze；
-10. future deterministic judge / ledger；
-11. no edge / no live trade boundary。
+10. no edge / no live trade boundary。
 
-Workflow 的核心职责是防止 R 跳过前因、失败成本、盲测、反例和信息隔离。
+Workflow 的核心职责是执行 docs/framework，不是创造新的市场理解。它必须防止 R 跳过前因、失败成本、盲测、反例和信息隔离。
 
 ## skills
 
@@ -53,34 +63,34 @@ Skills 是 LLM 判断规则和操作规程，不是 deterministic data reader。
 
 可接受的 skill：
 
-- 结构判断 rubric；
-- liquidity / sweep / fake-breakout / acceptance 判断；
-- Research Director 切片规程；
+- Price Action + CVD/Delta + Orderbook rubric；
 - Council hypothesis 讨论规程；
-- reviewer discipline audit；
+- Research Director 切片规程；
+- Falsifier negative sample 规程；
+- Reviewer discipline audit；
 - capability gap diagnosis；
 - launch/bind 操作 skill。
 
-Skills 必须输出 evidence refs、reasoning chain、counter evidence 和 missing evidence。Skills 不读 raw DB、不选择 dispatcher-owned values、不当 deterministic judge、不产生 edge / Product GO / can-trade。
+Skills 必须输出 evidence refs、reasoning chain、counter evidence 和 missing evidence。Skills 不读 raw DB、不选择 dispatcher-owned values、不当 deterministic judge、不产生 edge / Product GO / can-trade。Skill 如果发现 framework 不适用，只能提出 docs-change proposal 或 typed blocker，不能直接改写研究体系。
 
 ## tools
 
-Tools 必须是真实 `.py` / `.ps1` / schema / config。Tools 负责可复现事实，不负责 smart-money 结论。
+Tools 必须是真实 `.py` / `.ps1` / schema / config。Tools 负责可复现事实，不负责 smart-money 结论，也不负责改变 thesis / framework。
 
 当前可接受 tool 类型：
 
 - app-owned CLI/readback wrapper；
 - OHLCV facts；
-- trades adaptive facts；
-- future funding/OI/orderbook facts；
-- JSON/JSONL validation；
-- deterministic judge / ledger 工具，只有未来单独授权后。
+- trades / CVD / delta adaptive facts；
+- orderbook low-level facts；
+- JSON/JSONL validation。
 
 Tools 不负责：
 
 - 写 hypothesis；
 - 解释市场；
-- 输出 OB/FVG/liquidity/sweep/acceptance 最终标签；
+- 输出 FVG/liquidity/sweep/acceptance 最终标签；
+- 输出 absorption confirmed / distribution confirmed；
 - 选择 release-root / endpoint-dir / verifier hash；
 - raw DB / external API；
 - edge / Product GO / can-trade。
@@ -96,10 +106,8 @@ Templates 定义输入输出形状，不是 current truth。
 - worker tool request；
 - worker tool response；
 - judgment trace；
-- adversarial output；
-- reviewer output；
-- judge output；
-- ledger record。
+- falsifier output；
+- reviewer output。
 
 字段纪律必须先在 docs 中被接受，再创建 active template。
 
@@ -110,9 +118,10 @@ Reviews 检查：
 - 是否遵守 docs current truth；
 - 是否泄漏答案；
 - refs 是否存在；
+- response_id / request_id / output_hash 是否清楚；
 - judgment trace 是否完整；
 - known-at 是否正确；
-- partial/truncated 是否误用；
+- partial/truncated/orderbook 小样本是否误用；
 - 是否跳过 no-entry / failure / boring cases；
 - 是否把 reviewer 当 judge；
 - 是否把 tool/data/app/worker/skill/orchestration gap 混在一起。
@@ -129,11 +138,12 @@ Review 不替代 owner/C verdict，也不授权 app work。
 - tool requests/responses；
 - worker output；
 - judgment traces；
+- falsifier output；
 - reviewer audit；
 - validation report；
 - summary。
 
-Run 不自动升级为 docs truth。任何 run lesson 进入 docs 前都需要 owner/C 接受。
+Run 不自动升级为 docs truth。任何 run lesson、counterexample 或 framework 修改建议进入 docs 前都需要 owner/C 接受。
 
 ## dispatcher-owned boundary
 

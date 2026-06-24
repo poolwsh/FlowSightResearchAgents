@@ -1,12 +1,32 @@
 {
   "response_id": "",
   "request_id": "",
+  "identity": {
+    "response_id": "",
+    "response_id_source": "explicit | derived_from_request_id | derived_from_payload_core",
+    "request_id": "",
+    "output_ref": "",
+    "output_hash": ""
+  },
   "tool_id": "",
   "status": "ok | denied | blocked | error",
   "source_ref": "",
+  "source_hashes": {
+    "raw_source_hash": "",
+    "normalized_source_hash": ""
+  },
+  "legacy_source_hashes": [],
   "output_ref": "",
   "output_hash": "",
   "observation_summary": {},
+  "hash_semantics": {
+    "response_id": "canonical tool response identity; trace references must use this field",
+    "response_id_source": "records whether response_id was explicit, derived from request_id, or derived from payload core",
+    "request_id": "broker request identity; kept for audit and backwards review compatibility",
+    "raw_source_hash": "sha256 over exact source artifact bytes or app response payload hash bundle",
+    "normalized_source_hash": "sha256 over canonical normalized rows/facts consumed by the tool",
+    "output_hash": "sha256 over emitted response payload with output_hash fields blank before hashing"
+  },
   "evidence_cutoff": "",
   "cutoff_respected": false,
   "blocked_reason": "",
@@ -19,4 +39,3 @@
     "no_product_go": true
   }
 }
-

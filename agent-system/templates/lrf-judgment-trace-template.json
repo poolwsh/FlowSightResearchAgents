@@ -9,8 +9,11 @@
       "source_ref": "",
       "tool_response_ref": {
         "response_id": "",
+        "request_id": "",
         "output_ref": "",
-        "output_hash": ""
+        "output_hash": "",
+        "raw_source_hash": "",
+        "normalized_source_hash": ""
       },
       "value": {}
     }
@@ -44,4 +47,3 @@
     "no_product_go": true
   }
 }
-

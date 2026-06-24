@@ -148,14 +148,30 @@ Outputs:
 
 - `tool_requests.jsonl`;
 - `tool_responses.jsonl`;
+- canonical `response_id` refs;
 - output refs and hashes;
+- raw and normalized source hashes;
 - denied, partial, or blocked responses with reasons.
 
 Rules:
 
 - Worker requests facts; R brokers and records them.
-- Tools return deterministic facts, source refs, hashes, cutoff, requested
-  start/end, and complete/partial status.
+- Tools return deterministic facts, canonical `response_id`, request identity,
+  source refs, raw source hashes, normalized fact-source hashes, cutoff,
+  requested start/end, and complete/partial status.
+- `response_id` is the primary identity used by judgment traces. `request_id`
+  is request lineage only. `output_ref` and `output_hash` are storage and
+  payload proof only.
+- Every response identity records `identity.response_id_source` as `explicit`,
+  `derived_from_request_id`, or `derived_from_payload_core`.
+- New formal evidence should use `explicit` or `derived_from_request_id`
+  response ids. `derived_from_payload_core` is a fallback for blocked/error
+  auditability and must be reviewed before formal packet use.
+- New formal evidence must not rely on alias inference from `request_id` or
+  `output_ref` when a `response_id` is missing.
+- `source_hashes.raw_source_hash` identifies the exact app artifact or app
+  response payload hash domain. `source_hashes.normalized_source_hash`
+  identifies the canonical normalized rows/facts consumed by the fact tool.
 - Worker may drill down inside the assigned window.
 - Tools must not output final smart-money labels.
 - Worker must not use raw DB, external API, app internals, reveal, judge, ledger,
@@ -186,6 +202,9 @@ Rules:
 
 - No prose-only labels.
 - Every non-trivial judgment cites tool response refs and source refs.
+- Every tool response ref must cite canonical `response_id`. `request_id`,
+  `output_ref`, `output_hash`, and source hashes are supporting audit fields,
+  not substitutes for missing `response_id`.
 - Every judgment states `decision_time` and `evidence_cutoff`.
 - Post-cutoff facts cannot support known-at judgments.
 
