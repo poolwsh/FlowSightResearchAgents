@@ -1,121 +1,92 @@
 ---
 name: review-lrf-research-discipline
-description: Use when R or a reviewer worker must audit the LRF Council/Director/Blind Worker/Falsifier chain for information isolation, known-at discipline, source refs, tool response linkage, truncation handling, overclaim, and reviewer-as-judge violations.
+description: Use when auditing an LRF Council/Director/Blind Worker/Falsifier run for docs authority, isolation, known-at evidence, response identity, partial evidence handling, and forbidden claims.
 ---
 
 # Review LRF Research Discipline
 
-## Purpose
+## Core Rule
 
-Audit whether an LRF historical research attempt followed the accepted
-Council / Director / Blind Worker / Falsifier workflow.
+Reviewer audits process discipline. Reviewer does not judge market outcome and
+does not decide profitability.
 
-This review checks process discipline. It does not decide whether a market
-hypothesis was profitable, whether an entry would have worked, or whether a
-strategy has edge.
+## Review Scope
 
-## Accepted Inputs
+Check the run against:
 
-- source binding ref;
-- Council output;
-- Director task packet;
-- research runtime contract;
-- allowed tool registry;
-- allowed skill registry;
-- tool requests;
-- tool responses;
-- judgment traces;
-- falsifier output;
-- validation report.
+- accepted docs current truth;
+- reviewed GOAL scope;
+- source binding and known-at policy;
+- actor isolation;
+- canonical tool response identity;
+- partial/truncated/orderbook downgrade rules;
+- forbidden claims boundary.
 
-## Review Checks
+## Required Checks
 
-### Council Boundary
+### Authority
 
-- Council output is research planning, not worker truth.
-- Council did not include outcome, reveal, performance, edge, can-trade,
-  Product GO, live signal, broker, OMS, or live-order claims.
-- Council candidate windows include verification questions and falsification
-  needs.
+- Workflow starts from research thesis and current framework.
+- No lower-layer artifact rewrites thesis/framework during execution.
+- Any framework issue is recorded as blocker, counterexample, or docs-change
+  proposal.
 
-### Director Sanitization
+### Actor Isolation
 
-- Director converted Council output into bounded worker tasks.
-- Director removed conclusion language and future outcome hints.
-- Director did not give worker a global free-browse universe.
-- Director did not give worker only a single bar without enough context.
-- Director preserved known-at policy and forbidden sources/outputs.
+- Council and Director are distinct roles.
+- Director task packets use neutral `blind_task_id`.
+- Worker-visible artifacts do not expose sealed candidate/boring/failure labels.
+- Main R did not substitute role judgment.
 
-### Worker Trace Discipline
+### Evidence Linkage
 
-- Worker used only allowed tools and rubrics.
-- Every non-trivial judgment has a `judgment_trace`.
-- Trace fields include decision time, evidence cutoff, observed facts, tool
-  response refs, rule clauses, reasoning chain, counter evidence, missing
-  evidence, confidence, and forbidden future attestation.
+Every cited fact must resolve to a tool response with:
 
-### Tool Response Linkage
+- canonical `response_id`;
+- `identity.response_id_source`;
+- `request_id`;
+- `output_hash`;
+- `source_hashes.raw_source_hash`;
+- `source_hashes.normalized_source_hash`;
+- evidence cutoff and `cutoff_respected`;
+- completeness / partial / blocked status.
 
-- Every observed fact resolves to a tool response.
-- Tool responses contain source refs, output refs or hashes, requested
-  start/end, evidence cutoff, cutoff status, and complete/partial status.
-- Denied, blocked, or partial responses include reasons.
+No trace may rely on line number, argv, or prose summary as primary evidence.
 
-### Known-At And Partial Data
+### Judgment Order
 
-- Cited facts are at or before the trace cutoff.
-- Completed bars use close-time known-at semantics when close time exists.
-- Truncated or partial trades are not used as complete aggression confirmation.
-- Missing data families remain explicit.
+Worker traces must follow:
 
-### Hint Pollution
+```text
+price_action_context
+  -> aggressive_flow_state
+  -> passive_liquidity_state
+  -> smart_money_hypothesis_status
+```
 
-- Worker did not see Council discussion that told it what to prove.
-- Worker did not receive outcome, judge, ledger, performance, or answer-bearing
-  artifacts.
-- Main R did not substitute worker judgment.
+Smart-money labels cannot appear as proof before price and order-flow facts.
 
-### Falsifier Coverage
+### Partial Evidence
 
-- Falsifier searched for counter evidence.
-- Falsifier considered no-entry, boring, failure, and alternative explanations.
-- Missing falsifier coverage is recorded as a discipline gap.
+- Truncated trades cannot be complete CVD/delta proof.
+- Missing side field means unknown side, not inferred aggression.
+- Partial or blocked orderbook cannot confirm absorption, distribution, support,
+  or resistance.
+- Blocked evidence must remain blocked or insufficient.
 
-### Overclaim And Reviewer-As-Judge
+### Forbidden Claims
 
-- No process output claims performance, edge, can-trade, Product GO, live signal,
-  broker action, OMS action, or live-order action.
-- Reviewer did not judge market result or replace deterministic judge/ledger.
+Flag any claim of performance, edge, can-trade, Product GO, live signal, broker,
+OMS, exchange, or live-order action.
 
-## Required Output
+## Verdicts
 
-Return output compatible with
-`agent-system/templates/lrf-reviewer-discipline-template.json`.
+Use:
 
-Minimum fields:
+- `pass`
+- `needs_fix`
+- `typed_blocker`
+- `out_of_scope`
 
-- `review_id`;
-- `reviewed_refs`;
-- `verdict`;
-- `council_boundary_findings`;
-- `director_sanitization_findings`;
-- `worker_trace_findings`;
-- `tool_response_linkage_findings`;
-- `known_at_findings`;
-- `partial_truncation_findings`;
-- `hint_pollution_findings`;
-- `falsifier_coverage_findings`;
-- `overclaim_findings`;
-- `reviewer_as_judge_violations`;
-- `required_fixes`;
-- `forbidden_next_actions`.
-
-## Forbidden
-
-- Do not judge market result.
-- Do not decide stop survival, target hit, win/loss, PnL, win-rate,
-  expectancy, performance, edge, can-trade, or Product GO.
-- Do not run reveal, deterministic judge, evaluator, or ledger.
-- Do not read raw DB, external APIs, app source, release internals, verifier
-  internals, dispatcher internals, endpoint internals, broker, OMS, or
-  live-order paths.
+Reviewer pass means process discipline passed. It does not mean the market idea
+works.

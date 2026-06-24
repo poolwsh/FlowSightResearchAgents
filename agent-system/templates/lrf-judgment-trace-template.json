@@ -1,12 +1,34 @@
 {
+  "template_id": "lrf-judgment-trace.v1",
   "judgment_id": "",
-  "judgment_type": "range_context | fvg_candidate | ob_candidate | liquidity_sweep | fake_breakout | acceptance | rejection | lost_zone_reaction | displacement | no_entry_reason | ambiguous_structure",
+  "blind_task_id": "",
   "decision_time": "",
   "evidence_cutoff": "",
+  "price_action_context": {
+    "status": "range | sweep_reclaim | breakout | breakdown | displacement | acceptance | rejection | failed_breakout | consolidation | ambiguous | blocked",
+    "observations": [],
+    "supporting_response_ids": []
+  },
+  "aggressive_flow_state": {
+    "status": "supports_price_action | contradicts_price_action | divergent | partial | unavailable | blocked | ambiguous",
+    "observations": [],
+    "supporting_response_ids": [],
+    "partial_or_truncated_evidence": []
+  },
+  "passive_liquidity_state": {
+    "status": "supports_price_action | contradicts_price_action | partial | insufficient | blocked | ambiguous",
+    "observations": [],
+    "supporting_response_ids": [],
+    "partial_or_blocked_evidence": []
+  },
+  "smart_money_hypothesis_status": {
+    "hypothesis_name": "sweep_reclaim | displacement_continuation | fvg_candidate | failed_breakout_distribution | absorption_candidate | range_liquidity_context | none",
+    "status": "hypothesis_supported | hypothesis_contradicted | hypothesis_partial | evidence_insufficient | blocked",
+    "limits": ""
+  },
   "observed_facts": [
     {
       "fact_id": "",
-      "source_ref": "",
       "tool_response_ref": {
         "response_id": "",
         "request_id": "",
@@ -18,30 +40,15 @@
       "value": {}
     }
   ],
-  "applied_rule_clauses": {
-    "satisfied": [],
-    "not_satisfied": [],
-    "ambiguous": []
-  },
-  "reasoning_chain": [
-    {
-      "step_id": "",
-      "claim": "",
-      "supported_by_fact_ids": [],
-      "limits": ""
-    }
-  ],
-  "counter_evidence": [],
+  "contradicting_facts": [],
+  "partial_or_blocked_evidence": [],
   "alternative_explanations": [],
   "missing_evidence": [],
-  "confidence_label": "likely | possible | ambiguous | not_supported | needs_data | blocked",
-  "invalidation_or_recheck_condition": "",
-  "forbidden_future_attestation": {
+  "confidence_label": "supported | possible | partial | ambiguous | insufficient | blocked",
+  "forbidden_claims_attestation": {
     "supporting_facts_at_or_before_cutoff": true,
     "no_post_cutoff_support": true,
-    "no_reveal": true,
-    "no_outcome": true,
-    "no_judge_result": true,
+    "no_future_outcome": true,
     "no_performance": true,
     "no_edge_or_can_trade": true,
     "no_product_go": true

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """Export bounded OHLCV bars through an explicit FlowSight CLI command.
 
-This wrapper only creates answer-free app-owned export artifacts. It does not
-read raw databases, call exchange APIs, or infer market labels.
+This wrapper only creates app-owned bounded export artifacts. It does not read
+raw databases, call exchange APIs, or infer market labels.
 """
 
 from __future__ import annotations

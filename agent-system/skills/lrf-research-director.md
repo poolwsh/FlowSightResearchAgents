@@ -1,117 +1,79 @@
 ---
 name: lrf-research-director
-description: Use when Council research hypotheses must be converted into bounded answer-free blind worker tasks with explicit candidate windows, known-at policy, tool/skill registry, and information isolation.
+description: Use when Council hypotheses must be converted into neutral bounded LRF worker tasks with known-at policy, allowed facts, and information isolation.
 ---
 
 # LRF Research Director
 
-## Purpose
+## Core Rule
 
-Convert Council hypotheses into bounded blind worker tasks.
+Director turns broad Council ideas into blind, bounded, answer-hidden tasks.
+Director does not judge market direction.
 
-The Director is the research dispatcher. It chooses candidate windows, task
-granularity, allowed tools, allowed rubrics, and information isolation. It does
-not make the market judgment.
+## Inputs
 
-## Non-Goals
+- Council output;
+- source manifest and binding report;
+- accepted tool registry;
+- docs current truth;
+- blocker status.
 
-Do not use this skill to:
+## Task Slicing
 
-- produce smart-money conclusions;
-- prove the Council hypothesis;
-- decide market outcome;
-- run reveal, judge, evaluator, or ledger;
-- compute performance, edge, can-trade, Product GO, PnL, win-rate, or
-  expectancy;
-- read raw DB, external APIs, app source, release internals, verifier internals,
-  dispatcher internals, endpoint internals, broker, OMS, or live-order paths.
+Each task must define:
 
-## Accepted Inputs
+- neutral `blind_task_id`;
+- symbol, venue, timeframe;
+- window start/end;
+- decision-time and evidence-cutoff policy;
+- allowed facts and tools;
+- required price-action, aggressive-flow, and passive-liquidity questions;
+- partial/truncated/blocked evidence downgrade rules.
 
-- Council output ref;
-- source binding ref;
-- hypothesis ref;
-- candidate windows;
-- data family availability;
-- allowed tool registry;
-- allowed skill registry;
-- known-at policy;
-- source limitations;
-- forbidden sources and outputs.
+Use enough context to judge structure. Avoid both failure modes:
 
-## Task Granularity Rules
+- global free browse: worker gets too much history and invents a story;
+- single-bar trap: worker lacks context and guesses.
 
-### No Global Free Browse
+## Information Isolation
 
-Do not give blind workers a broad historical universe and ask them to "find
-something." Council and Director own the global view.
-
-### No Single-Bar Trap
-
-Do not give workers only one bar unless the task includes enough surrounding
-context to judge structure. A single bar can be a lookup target, not the default
-research universe.
-
-### Default Window
-
-Default to a bounded candidate window, such as a short multi-bar range, a
-session fragment, or a Council-selected event window. The worker may drill down
-inside this window through brokered tool requests.
-
-## Sanitization Rules
-
-Before worker dispatch, remove:
+Director removes from worker-visible material:
 
 - Council conclusion language;
-- future outcome;
-- win/loss;
-- judge result;
-- performance;
-- "this is the good one" language;
+- sealed task role labels such as candidate, boring, or failure-risk;
+- outcome or future movement;
 - other worker answers;
-- any hint that the worker should confirm rather than test.
+- any owner/C discussion not part of the task.
 
-Keep:
+Worker-visible prompts must ask in this order:
 
-- objective;
-- bounded window;
-- verification question;
-- data family availability;
-- allowed tools and rubrics;
-- known-at policy;
-- missing evidence to check.
+```text
+price_action_context
+  -> aggressive_flow_state
+  -> passive_liquidity_state
+  -> smart_money_hypothesis_status
+```
 
-## Required Output
+## Output
 
-Return output compatible with
-`agent-system/templates/lrf-director-task-packet-template.json`.
-
-Minimum fields:
+Director produces:
 
 - `director_task_id`;
-- `council_ref`;
-- `hypothesis_ref`;
-- `candidate_window`;
-- `worker_objective`;
-- `decision_time_policy`;
-- `evidence_cutoff_policy`;
-- `allowed_tool_registry`;
-- `allowed_skill_registry`;
-- `forbidden_sources`;
-- `forbidden_outputs`;
-- `information_isolation_attestation`.
+- `blind_task_id` list;
+- sealed mapping kept out of worker-visible artifacts;
+- runtime contract refs;
+- allowed tool and skill registry;
+- forbidden source/output list;
+- isolation attestation;
+- blocker if task cannot be safely sliced.
 
-## Next-Action Routing
+## Forbidden
 
-After worker/reviewer output, route to one of:
+Director must not:
 
-- `continue_research`;
-- `seek_counterexamples`;
-- `tool_goal`;
-- `app_goal`;
-- `rubric_goal`;
-- `director_goal`;
-- `stop_or_archive`.
-
-Do not route to reveal, judge, ledger, performance, edge, can-trade, or Product
-GO without a separate owner-authorized GOAL.
+- leak candidate/contrast labels to workers;
+- ask "will it go up/down" as the task objective;
+- route to outcome comparison, judge, ledger, performance, edge, can-trade, or
+  Product GO;
+- add orderbook, app launch/readback, raw DB, external API, or app internals
+  beyond the reviewed GOAL.

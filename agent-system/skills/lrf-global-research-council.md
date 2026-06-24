@@ -1,120 +1,83 @@
 ---
 name: lrf-global-research-council
-description: Use when two or three Council agents should inspect a larger historical LRF scope and propose research hypotheses, candidate windows, verification questions, and negative/boring/failure sample needs without producing worker answers or market outcome claims.
+description: Use when LRF research needs broad historical hypothesis generation before Director slicing, especially to select candidate, boring, no-entry, or failure-risk windows without giving worker answers.
 ---
 
 # LRF Global Research Council
 
-## Purpose
+## Core Rule
 
-Generate historical research hypotheses from a larger authorized scope.
+Council starts from the market mechanism thesis, not from FVG/CVD/orderbook
+names. It asks what auction mechanism may be worth testing.
 
-Council agents are allowed to think globally about what may be worth studying,
-but their output is research planning only. Council output is not a trade
-decision, not worker truth, and not market-result evidence.
+Current thesis:
 
-## Non-Goals
+```text
+market movement is an auction and liquidity repricing process;
+short-term opportunity hypotheses come from the interaction of price location,
+aggressive flow, passive liquidity, and accepted or failed movement.
+```
 
-Do not use this skill to:
+## Inputs
 
-- decide current live trades;
-- produce entry signals;
-- judge market outcome;
-- compute or claim PnL, win-rate, expectancy, performance, edge, can-trade, or
-  Product GO;
-- reveal future outcomes to blind workers;
-- replace Director task slicing;
-- replace deterministic tools, judge, evaluator, or ledger;
-- read raw DB, external APIs, app source, release internals, dispatcher
-  internals, verifier internals, endpoint internals, broker, OMS, or live-order
-  material.
+- accepted docs current truth;
+- source binding and available historical scope;
+- deterministic fact summaries if the GOAL allows Council facts;
+- prior accepted blockers and tool capability status.
 
-## Accepted Inputs
+Council may inspect broad historical context. Council output is not worker input
+until Director sanitizes it.
 
-- source binding ref;
-- historical scope;
-- symbol, venue, timeframe;
-- available and missing data families;
-- source refs and hashes;
-- known source limitations;
-- allowed research object refs from `docs/research/lrf/**`;
-- forbidden outputs.
+## Output Responsibilities
 
-## Council Mode
+Produce:
 
-Use two or three independent Council perspectives when available. They may
-inspect the same large historical scope and propose different hypotheses.
+- `council_output_id`;
+- mechanism question;
+- candidate window proposals;
+- boring/no-entry window proposals;
+- failure or alternative-explanation window proposals;
+- evidence-family needs for bars, trades/CVD/delta, and orderbook;
+- falsification questions;
+- partial/blocker risks;
+- explicit forbidden-claims attestation.
 
-Recommended perspectives:
+Every hypothesis must be falsifiable. A hypothesis that explains every chart is
+too broad and should be downgraded or rejected.
 
-- structure-first Council;
-- order-flow/positioning Council;
-- falsification/statistical-risk Council.
+## Allowed Hypothesis Language
 
-The final Council output should merge useful hypotheses and preserve
-disagreements as open questions, not force consensus.
+Council may use minimal smart-money naming only after price-action context is
+clear:
 
-## Required Output
+- sweep / reclaim candidate;
+- displacement continuation candidate;
+- FVG candidate;
+- failed breakout / distribution candidate;
+- absorption candidate;
+- range liquidity context.
 
-Return output compatible with
-`agent-system/templates/lrf-council-hypothesis-template.json`.
+These are labels for research tasks, not proof.
 
-Each hypothesis must include:
+## Required Negative Thinking
 
-- hypothesis id and title;
-- historical scope;
-- candidate windows;
-- low-level reasons why the windows are worth verification;
-- verification questions;
-- required data families;
-- missing data families;
-- no-entry sample needs;
-- boring sample needs;
-- failure sample needs;
-- falsification criteria;
-- forbidden claims attestation.
+For each candidate, Council should ask:
 
-## Candidate Window Rules
+- What boring window would make this setup uninteresting?
+- What failure-risk window would make the same language overfit?
+- What price/CVD/orderbook contradiction would weaken it?
+- What evidence family could be partial or blocked?
 
-Candidate windows should be bounded ranges, not the whole universe and not a
-single bar unless there is enough surrounding context.
+## Forbidden
 
-Good candidate windows state:
+Council must not:
 
-- `window_start`;
-- `window_end`;
-- `decision_time_policy`;
-- why the window may matter;
-- which data families should be checked;
-- what would disprove the idea.
+- claim outcome, performance, edge, can-trade, Product GO, live signal, broker
+  action, OMS action, or live-order action;
+- write worker conclusions;
+- pass answer-bearing prose to worker;
+- use raw DB, external API, app internals, or unreviewed release discovery;
+- change docs current truth inside a run.
 
-## Information Isolation
-
-Council output must not be handed directly to a blind worker. The Research
-Director must sanitize it into an answer-free task packet.
-
-Council may say:
-
-- "This window may be worth testing for sweep/reclaim structure."
-- "Trades and OI should be checked as possible support or contradiction."
-
-Council must not say to the worker:
-
-- "This is the winning long."
-- "Prove this setup works."
-- "The later outcome confirms the hypothesis."
-
-## Forbidden Output
-
-- outcome;
-- reveal;
-- judge result;
-- ledger result;
-- performance;
-- edge;
-- can-trade;
-- Product GO;
-- live signal;
-- broker / OMS / live-order action;
-- worker answer language;
-- claims that a single case proves a strategy.
+If Council finds the docs framework wrong, output `docs_change_proposal` or a
+typed blocker.

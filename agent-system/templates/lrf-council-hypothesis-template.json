@@ -1,6 +1,14 @@
 {
+  "template_id": "lrf-council-hypothesis.v1",
   "council_output_id": "",
-  "status": "draft | ready | blocked",
+  "status": "ready | blocked",
+  "source_authority": [
+    "docs/research/lrf/research-thesis.md",
+    "docs/research/lrf/price-cvd-orderbook-strategy.md",
+    "docs/research/lrf/research-process.md",
+    "docs/research/lrf/method-stack.md",
+    "docs/research/lrf/blocker-taxonomy.md"
+  ],
   "historical_scope": {
     "symbol": "",
     "venue": "",
@@ -10,43 +18,48 @@
     "source_binding_ref": "",
     "source_hash_refs": []
   },
+  "mechanism_questions": [
+    {
+      "question_id": "",
+      "thesis_link": "price_location | aggressive_flow | passive_liquidity | accepted_or_failed_movement",
+      "question": "",
+      "why_worth_testing": []
+    }
+  ],
   "hypotheses": [
     {
       "hypothesis_id": "",
-      "hypothesis_title": "",
+      "minimal_hypothesis_name": "sweep_reclaim | displacement_continuation | fvg_candidate | failed_breakout_distribution | absorption_candidate | range_liquidity_context | other",
       "research_premise": "",
-      "why_worth_testing": [],
       "falsification_criteria": [],
       "confidence_label": "possible | ambiguous | needs_data | blocked"
     }
   ],
-  "candidate_windows": [
+  "window_proposals": [
     {
-      "candidate_id": "",
+      "proposal_id": "",
       "hypothesis_ref": "",
+      "sealed_role": "candidate | boring_no_entry | failure_risk | alternative_explanation",
       "window_start": "",
       "window_end": "",
       "decision_time_policy": "",
-      "why_candidate": [],
-      "data_family_needs": []
+      "why_this_window": [],
+      "data_family_needs": {
+        "bars": "required | optional | blocked",
+        "trades_cvd_delta": "required | optional | blocked",
+        "orderbook": "required | optional | partial_allowed | blocked"
+      }
     }
   ],
   "verification_questions": [],
-  "data_family_needs": {
-    "ohlcv": "required | optional | unavailable | blocked",
-    "trades": "required | optional | unavailable | blocked",
-    "orderbook": "required | optional | unavailable | blocked",
-    "open_interest": "required | optional | unavailable | blocked",
-    "funding_rates": "required | optional | unavailable | blocked"
+  "blocker_risks": [],
+  "director_instructions": {
+    "must_assign_neutral_blind_task_ids": true,
+    "must_remove_sealed_roles_from_worker_visible_tasks": true,
+    "must_remove_council_conclusion_language": true
   },
-  "negative_sample_needs": [],
-  "boring_sample_needs": [],
-  "failure_sample_needs": [],
-  "open_questions": [],
   "forbidden_claims_attestation": {
     "no_outcome": true,
-    "no_reveal": true,
-    "no_judge_or_ledger": true,
     "no_performance": true,
     "no_edge_or_can_trade": true,
     "no_product_go": true,

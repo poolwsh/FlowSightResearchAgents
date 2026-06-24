@@ -1,4 +1,5 @@
 {
+  "template_id": "lrf-worker-tool-response.v1",
   "response_id": "",
   "request_id": "",
   "identity": {
@@ -8,32 +9,34 @@
     "output_ref": "",
     "output_hash": ""
   },
+  "actor_role": "council | blind_worker | falsifier | reviewer",
+  "blind_task_id": "",
   "tool_id": "",
   "status": "ok | denied | blocked | error",
+  "fact_family": "bars | trades_cvd_delta | orderbook | source_binding | other",
   "source_ref": "",
   "source_hashes": {
     "raw_source_hash": "",
     "normalized_source_hash": ""
   },
-  "legacy_source_hashes": [],
   "output_ref": "",
   "output_hash": "",
-  "observation_summary": {},
-  "hash_semantics": {
-    "response_id": "canonical tool response identity; trace references must use this field",
-    "response_id_source": "records whether response_id was explicit, derived from request_id, or derived from payload core",
-    "request_id": "broker request identity; kept for audit and backwards review compatibility",
-    "raw_source_hash": "sha256 over exact source artifact bytes or app response payload hash bundle",
-    "normalized_source_hash": "sha256 over canonical normalized rows/facts consumed by the tool",
-    "output_hash": "sha256 over emitted response payload with output_hash fields blank before hashing"
-  },
+  "requested_start": "",
+  "requested_end": "",
   "evidence_cutoff": "",
   "cutoff_respected": false,
+  "completeness": "complete | partial | truncated | blocked | insufficient",
+  "observation_summary": {},
+  "hash_semantics": {
+    "response_id": "canonical tool response identity; judgment traces cite this field",
+    "response_id_source": "explicit, derived from request id, or derived from payload core",
+    "raw_source_hash": "hash over exact source payload or app response bundle",
+    "normalized_source_hash": "hash over canonical normalized rows or facts consumed",
+    "output_hash": "hash over emitted response payload"
+  },
   "blocked_reason": "",
   "forbidden_attestation": {
-    "no_reveal": true,
-    "no_outcome": true,
-    "no_judge_result": true,
+    "no_future_outcome": true,
     "no_performance": true,
     "no_edge_or_can_trade": true,
     "no_product_go": true

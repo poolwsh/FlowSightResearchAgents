@@ -1,9 +1,14 @@
 {
+  "template_id": "lrf-worker-tool-request.v1",
   "request_id": "",
-  "worker_id": "",
+  "actor_role": "council | blind_worker | falsifier | reviewer",
+  "blind_task_id": "",
   "tool_id": "",
   "reason": "",
+  "requested_fact_family": "bars | trades_cvd_delta | orderbook | source_binding | other",
   "params": {},
+  "requested_start": "",
+  "requested_end": "",
   "evidence_cutoff": "",
   "expected_observation": "",
   "why_allowed": "",
@@ -12,13 +17,9 @@
     "no_external_api": true,
     "no_app_source": true,
     "no_verifier_or_release_internals": true,
-    "no_answer_bearing_runs": true,
-    "no_reveal_request": true,
-    "no_outcome_request": true,
-    "no_judge_result_request": true,
+    "no_future_outcome_request": true,
     "no_performance_request": true,
     "no_edge_or_can_trade_request": true,
     "no_product_go_request": true
   }
 }
-

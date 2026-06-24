@@ -1,35 +1,47 @@
 {
+  "template_id": "lrf-director-task-packet.v1",
   "director_task_id": "",
   "status": "ready | blocked",
   "council_ref": {
     "council_output_id": "",
     "source_hash": ""
   },
-  "hypothesis_ref": {
-    "hypothesis_id": "",
-    "hypothesis_title": ""
+  "sealed_mapping_ref": {
+    "mapping_hash": "",
+    "worker_visible": false
   },
-  "candidate_window": {
-    "candidate_id": "",
-    "window_start": "",
-    "window_end": "",
-    "symbol": "",
-    "venue": "",
-    "timeframe": ""
-  },
-  "worker_objective": "",
-  "decision_time_policy": {
-    "mode": "explicit | per_trace",
-    "decision_time": "",
-    "notes": ""
-  },
-  "evidence_cutoff_policy": {
-    "mode": "explicit | completed_bar | tool_response_bounded",
-    "evidence_cutoff": "",
-    "notes": ""
-  },
-  "allowed_tool_registry": [],
-  "allowed_skill_registry": [],
+  "worker_tasks": [
+    {
+      "blind_task_id": "",
+      "worker_visible_label": "",
+      "window": {
+        "symbol": "",
+        "venue": "",
+        "timeframe": "",
+        "window_start": "",
+        "window_end": ""
+      },
+      "objective": "Assess the bounded window in order: price action, aggressive flow, passive liquidity, smart-money hypothesis status.",
+      "decision_time_policy": {
+        "mode": "explicit | per_trace",
+        "decision_time": "",
+        "notes": ""
+      },
+      "evidence_cutoff_policy": {
+        "mode": "explicit | completed_bar | tool_response_bounded",
+        "evidence_cutoff": "",
+        "notes": ""
+      },
+      "required_judgment_order": [
+        "price_action_context",
+        "aggressive_flow_state",
+        "passive_liquidity_state",
+        "smart_money_hypothesis_status"
+      ],
+      "allowed_tool_registry": [],
+      "allowed_skill_registry": []
+    }
+  ],
   "forbidden_sources": [
     "raw_db",
     "external_api",
@@ -38,12 +50,11 @@
     "verifier_internals",
     "dispatcher_internals",
     "endpoint_internals",
-    "reveal",
-    "judge",
-    "ledger",
-    "performance"
+    "future_outcome",
+    "sealed_task_role"
   ],
   "forbidden_outputs": [
+    "performance",
     "edge",
     "can_trade",
     "Product GO",
@@ -54,18 +65,11 @@
   ],
   "information_isolation_attestation": {
     "council_conclusion_language_removed": true,
+    "sealed_role_labels_removed": true,
     "future_outcome_removed": true,
     "other_worker_answers_removed": true,
     "worker_not_given_global_free_browse": true,
     "worker_not_given_single_bar_only": true
   },
-  "required_worker_outputs": [
-    "tool_requests",
-    "tool_responses",
-    "judgment_traces",
-    "missing_evidence",
-    "counter_evidence",
-    "confidence_label"
-  ],
   "blocked_reason": ""
 }

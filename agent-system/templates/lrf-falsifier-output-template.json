@@ -1,32 +1,31 @@
 {
+  "template_id": "lrf-falsifier-output.v1",
   "falsifier_output_id": "",
-  "status": "complete | needs_data | blocked",
+  "status": "complete | needs_repair | blocked",
   "director_task_ref": {
     "director_task_id": "",
     "source_hash": ""
   },
-  "hypothesis_ref": {
-    "hypothesis_id": "",
-    "source_hash": ""
-  },
+  "reviewed_blind_task_ids": [],
+  "sealed_mapping_used_after_worker_freeze": true,
   "counter_evidence": [
     {
       "finding_id": "",
+      "blind_task_id": "",
       "tool_response_refs": [],
       "observation": "",
       "why_it_matters": ""
     }
   ],
-  "no_entry_findings": [],
-  "boring_sample_findings": [],
-  "failure_sample_findings": [],
+  "boring_or_no_entry_findings": [],
+  "failure_risk_findings": [],
   "alternative_explanations": [],
-  "missing_evidence": [],
-  "confidence_label": "likely | possible | ambiguous | not_supported | needs_data | blocked",
-  "forbidden_future_attestation": {
-    "no_outcome": true,
-    "no_reveal": true,
-    "no_judge_or_ledger": true,
+  "partial_evidence_findings": [],
+  "hint_leakage_findings": [],
+  "required_repairs": [],
+  "confidence_label": "supported | contradicted | partial | insufficient | blocked",
+  "forbidden_claims_attestation": {
+    "no_future_outcome": true,
     "no_performance": true,
     "no_edge_or_can_trade": true,
     "no_product_go": true

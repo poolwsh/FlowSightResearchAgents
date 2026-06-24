@@ -1,284 +1,223 @@
 # LRF Council / Director / Blind Worker Research Workflow
 
-Status: active_contract
-Goal: r-goal-lrf-agent-system-replacement-cleanup-v0
-Updated: 2026-06-22
+Status: active_execution_material
+Source authority: accepted 7-file ResearchAgents docs current truth
 
-## Purpose
+This is the canonical active LRF workflow. It implements the current docs; it
+does not create a new market theory during execution.
 
-This is the canonical active LRF workflow for historical research.
+## Source Authority
 
-The workflow replaces the obsolete worker-centered runtime trunk. Research now
-starts with large-scope historical hypothesis generation, then Director task
-slicing, then bounded blind worker validation. The workflow stops before future
-reveal, deterministic judge, ledger, performance, edge, can-trade, Product GO,
-broker, OMS, exchange, or live-order work.
+Use only these docs as method authority:
 
-## Source Truth
-
-- `docs/research/lrf/research-agent-organization.md`
-- `docs/research/lrf/analysis-workflow.md`
-- `docs/research/lrf/worker-agent-runtime.md`
-- `docs/research/lrf/blind-validation-protocol.md`
-- `docs/research/lrf/trade-hypothesis-protocol.md`
-- `docs/research/lrf/ledger-requirements.md`
+- `docs/index.md`
+- `docs/research/lrf/index.md`
+- `docs/research/lrf/research-thesis.md`
+- `docs/research/lrf/price-cvd-orderbook-strategy.md`
+- `docs/research/lrf/research-process.md`
 - `docs/research/lrf/method-stack.md`
 - `docs/research/lrf/blocker-taxonomy.md`
 
-## Canonical Path
+Authority order:
 
 ```text
-stage_0_source_binding
-  -> stage_1_council_hypothesis
-  -> stage_2_director_task_slicing
-  -> stage_3_blind_worker_fact_loop
-  -> stage_4_judgment_trace
-  -> stage_5_falsifier_negative_pass
-  -> stage_6_reviewer_research_discipline
-  -> stage_7_freeze_stop_before_judge_ledger
+research thesis
+  -> research framework / docs current truth
+  -> skills / rubrics / workflows
+  -> tools / deterministic facts
+  -> runs / evidence artifacts
 ```
 
-If a task cannot enter this path, report a typed blocker. Do not fall back to
-ad hoc chart commentary or obsolete source-packaging flows.
+Lower layers may implement, verify, block, refute, or propose docs changes.
+They must not rewrite the thesis or framework inside a run.
 
-## stage_0_source_binding
+## Canonical Flow
 
-Purpose: bind app-owned historical source evidence before any research agent
-uses it.
+```text
+source_binding
+  -> council_mechanism_hypotheses
+  -> director_neutral_task_slicing
+  -> blind_worker_fact_loop
+  -> judgment_trace
+  -> falsifier_negative_pass
+  -> reviewer_discipline_audit
+  -> freeze
+```
 
-Inputs:
+The first-version framework is:
 
-- owner or dispatcher supplied source scope;
-- release app CLI/app endpoint readback when current app data is used;
-- source data manifest;
-- symbol, venue, timeframe, and bounded historical range;
-- known limitations for missing data families.
+```text
+Price Action + CVD/Delta + Orderbook
+```
 
-Outputs:
+Execution order inside every worker judgment:
 
-- `source_binding_ref`;
-- app selector and endpoint binding ref when applicable;
-- source hashes;
-- available and missing data families;
-- known-at policy;
-- typed blocker when binding is unavailable.
+```text
+price_action_context
+  -> aggressive_flow_state
+  -> passive_liquidity_state
+  -> smart_money_hypothesis_status
+```
 
-Rules:
+Smart-money language names hypotheses; it is not proof.
 
-- R does not choose dispatcher-owned formal `release-root`, `endpoint-dir`, or
-  `verifier-integrity-sha256`.
-- R must not use raw DB, external API, app source, release internals,
-  dispatcher internals, or endpoint internals as substitutes.
-- Missing binding stops the workflow.
+## Stage 0: Source Binding
 
-## stage_1_council_hypothesis
+Record the app-owned source binding before any role work:
 
-Purpose: let two or three Council agents inspect a larger historical scope and
-propose research hypotheses.
+- app selector, endpoint binding method, CLI path, release metadata if supplied;
+- symbol, venue, timeframe, historical window;
+- bars source and hash;
+- trades / CVD / delta source and hash;
+- orderbook evidence status: `complete | partial | blocked | insufficient`;
+- known-at / as-of policy;
+- canonical response identity and hash conventions.
 
-Inputs:
+If binding or required source readback is unavailable, stop with a typed blocker.
+Do not use raw DB, external API, screenshot guessing, app internals, or unreviewed
+release discovery as substitutes.
 
-- source binding ref;
-- historical scope;
-- data family availability;
-- allowed Council skill;
-- forbidden outputs.
+## Stage 1: Council
 
-Outputs:
+Council may inspect a broad historical universe. Council starts from the market
+mechanism thesis, not from indicator names.
 
-- `lrf-council-hypothesis-template.json` compatible output;
-- research hypotheses;
+Council outputs:
+
+- mechanism question;
 - candidate windows;
-- verification questions;
-- required data families;
-- no-entry, boring, and failure sample needs.
+- boring / no-entry windows;
+- failure or alternative-explanation windows;
+- required evidence families;
+- falsification questions.
 
-Rules:
+Council must not output outcome, live signal, performance, edge, can-trade,
+Product GO, broker action, OMS action, or live-order action.
 
-- Council output is research planning, not worker truth.
-- Council must not output outcome, reveal, performance, edge, can-trade,
-  Product GO, live signal, broker action, OMS action, or live-order action.
-- Council discussion is not passed directly to blind workers.
+## Stage 2: Director
 
-## stage_2_director_task_slicing
+Director converts Council output into neutral bounded tasks.
 
-Purpose: convert Council output into bounded answer-free worker tasks.
+Director responsibilities:
 
-Inputs:
+- choose task windows and decision-time policy;
+- assign neutral `blind_task_id` values;
+- remove Council conclusion language and any future/outcome hints;
+- set allowed tool and skill registries;
+- define known-at and partial-evidence rules;
+- ensure workers are not given global free-browse tasks or single-bar traps.
 
-- Council output;
-- source binding ref;
-- allowed tool registry;
-- allowed skill registry;
-- known-at policy.
+The worker-visible task asks what the evidence supports, contradicts, leaves
+partial, or blocks. It must not reveal whether the task is candidate, boring,
+or failure-risk.
 
-Outputs:
+## Stage 3: Blind Worker Fact Loop
 
-- `lrf-director-task-packet-template.json` compatible task packet;
-- candidate window;
-- worker objective;
-- decision time and evidence cutoff policy;
-- forbidden sources and outputs;
-- information isolation attestation.
+Worker sees only its sanitized task, runtime contract, allowed tools, and facts.
 
-Rules:
+Worker must request deterministic facts through the R tool broker. Every cited
+fact must resolve to a `tool_responses.jsonl` entry with:
 
-- Director prevents global free-browse worker behavior.
-- Director prevents single-bar-only tasks without enough context.
-- Default worker scope is a bounded candidate window with permission to drill
-  down through brokered tool requests.
-- Director removes Council conclusion language and future outcome hints before
-  worker dispatch.
-- Director does not write the market judgment.
+- `response_id`;
+- `identity.response_id_source`;
+- `request_id`;
+- `output_ref`;
+- `output_hash`;
+- `source_hashes.raw_source_hash`;
+- `source_hashes.normalized_source_hash`;
+- requested bounds;
+- `evidence_cutoff`;
+- `cutoff_respected`;
+- completeness status.
 
-## stage_3_blind_worker_fact_loop
+Tools provide facts only. They must not output FVG confirmed, absorption
+confirmed, distribution confirmed, edge, can-trade, Product GO, or performance.
 
-Purpose: let the blind worker request deterministic facts inside the assigned
-window.
+## Stage 4: Judgment Trace
 
-Inputs:
+Each non-trivial worker judgment records:
 
-- research runtime contract;
-- Director task packet;
-- allowed tool registry;
-- allowed skill registry;
-- tool request and response templates.
+- `blind_task_id`;
+- `price_action_context`;
+- `aggressive_flow_state`;
+- `passive_liquidity_state`;
+- `smart_money_hypothesis_status`;
+- supporting facts by canonical `response_id`;
+- contradicting facts;
+- partial or blocked evidence;
+- alternative explanations;
+- confidence label;
+- forbidden claims attestation.
 
-Outputs:
+If deterministic facts are missing, partial, truncated, stale, or blocked, the
+trace must downgrade. Missing orderbook cannot be turned into passive-liquidity
+proof. Truncated trades cannot be turned into complete CVD/delta confirmation.
 
-- `tool_requests.jsonl`;
-- `tool_responses.jsonl`;
-- canonical `response_id` refs;
-- output refs and hashes;
+## Stage 5: Falsifier
+
+Falsifier attacks the hypothesis after worker traces freeze.
+
+Falsifier checks:
+
+- no-entry, boring, and failure samples;
+- simpler alternative explanations;
+- CVD/delta caveats and truncation;
+- orderbook partial, blocked, low-density, or unstable evidence;
+- smart-money language that explains every chart;
+- hindsight or task-label leakage.
+
+Falsifier does not judge market result and does not compute performance.
+
+## Stage 6: Reviewer
+
+Reviewer audits discipline only:
+
+- docs authority chain followed;
+- Council did not start from indicator name stacking;
+- Director isolation and neutral task ids;
+- worker-visible artifacts did not leak sealed roles;
+- known-at and cutoff discipline;
+- canonical `response_id` linkage;
 - raw and normalized source hashes;
-- denied, partial, or blocked responses with reasons.
+- partial/truncated/orderbook downgrade;
+- forbidden claims;
+- reviewer did not become a market-result judge.
 
-Rules:
+Reviewer pass means process discipline passed. It is not a market result.
 
-- Worker requests facts; R brokers and records them.
-- Tools return deterministic facts, canonical `response_id`, request identity,
-  source refs, raw source hashes, normalized fact-source hashes, cutoff,
-  requested start/end, and complete/partial status.
-- `response_id` is the primary identity used by judgment traces. `request_id`
-  is request lineage only. `output_ref` and `output_hash` are storage and
-  payload proof only.
-- Every response identity records `identity.response_id_source` as `explicit`,
-  `derived_from_request_id`, or `derived_from_payload_core`.
-- New formal evidence should use `explicit` or `derived_from_request_id`
-  response ids. `derived_from_payload_core` is a fallback for blocked/error
-  auditability and must be reviewed before formal packet use.
-- New formal evidence must not rely on alias inference from `request_id` or
-  `output_ref` when a `response_id` is missing.
-- `source_hashes.raw_source_hash` identifies the exact app artifact or app
-  response payload hash domain. `source_hashes.normalized_source_hash`
-  identifies the canonical normalized rows/facts consumed by the fact tool.
-- Worker may drill down inside the assigned window.
-- Tools must not output final smart-money labels.
-- Worker must not use raw DB, external API, app internals, reveal, judge, ledger,
-  performance, edge, can-trade, Product GO, broker, OMS, or live-order material.
+## Stage 7: Freeze
 
-## stage_4_judgment_trace
+Freeze means the process artifacts are sealed for later review:
 
-Purpose: convert deterministic facts into auditable LLM judgments.
-
-Inputs:
-
-- Director task packet;
-- tool responses;
-- allowed rubric registry;
-- judgment trace template.
-
-Outputs:
-
-- `judgment_traces.jsonl`;
-- evidence-linked reasoning;
-- satisfied, not satisfied, and ambiguous rule clauses;
-- counter evidence;
-- alternative explanations;
-- missing evidence;
-- confidence labels.
-
-Rules:
-
-- No prose-only labels.
-- Every non-trivial judgment cites tool response refs and source refs.
-- Every tool response ref must cite canonical `response_id`. `request_id`,
-  `output_ref`, `output_hash`, and source hashes are supporting audit fields,
-  not substitutes for missing `response_id`.
-- Every judgment states `decision_time` and `evidence_cutoff`.
-- Post-cutoff facts cannot support known-at judgments.
-
-## stage_5_falsifier_negative_pass
-
-Purpose: attack the hypothesis before any reveal.
-
-Inputs:
-
-- Director task packet;
-- worker judgment traces;
-- allowed facts and rubrics under the same known-at policy.
-
-Outputs:
-
-- `lrf-falsifier-output-template.json` compatible output;
-- counter evidence;
-- no-entry findings;
-- boring sample findings;
-- failure sample findings;
-- alternative explanations;
-- missing evidence.
-
-Rules:
-
-- Falsifier uses bounded known-at evidence.
-- Falsifier does not judge market result.
-- Falsifier does not use reveal, judge, ledger, performance, edge, can-trade, or
-  Product GO material.
-
-## stage_6_reviewer_research_discipline
-
-Purpose: audit the full Council / Director / Worker / Falsifier chain.
-
-Inputs:
-
-- source binding ref;
 - Council output;
 - Director task packet;
+- runtime contract;
 - tool requests and responses;
-- judgment traces;
-- falsifier output.
+- worker outputs and judgment traces;
+- falsifier output;
+- reviewer discipline output;
+- validation report.
 
-Outputs:
+Current active workflow stops at freeze. Any later outcome comparison,
+statistics, judge, ledger, performance, edge, can-trade, or Product GO stage
+requires separate owner/C authorization and current-truth docs.
 
-- `lrf-reviewer-discipline-template.json` compatible output;
-- discipline verdict;
-- required fixes;
-- forbidden next actions.
+## Allowed End States
 
-Rules:
+- `process_smoke_pass`
+- `process_smoke_partial`
+- `typed_blocker`
+- `needs_repair`
+- `docs_change_proposal`
 
-- Reviewer checks Council boundary, Director sanitization, worker refs,
-  known-at, partial/truncated data use, hint pollution, falsifier coverage,
-  overclaim, and reviewer-as-judge violations.
-- Reviewer does not judge market result and does not replace deterministic judge
-  or ledger.
+Do not use vague labels like "agent cannot research" when a typed blocker can
+name the actual gap.
 
-## stage_7_freeze_stop_before_judge_ledger
+## Forbidden
 
-Purpose: freeze research process evidence and stop before outcome evaluation.
-
-Inputs:
-
-- all prior stage outputs.
-
-Outputs:
-
-- freeze refs and hashes;
-- final blocker classification or next GOAL recommendation.
-
-Rules:
-
-- Always stop here unless a later owner-authorized GOAL explicitly starts
-  reveal, deterministic judge, evaluator, ledger, or post-reveal comparison.
-- No performance, edge, can-trade, Product GO, broker, OMS, exchange, live-order,
-  or trade recommendation claim is allowed.
+- raw DB or external API;
+- FlowSight app source, release, verifier, dispatcher, or endpoint internals;
+- app launch/readback unless explicitly authorized by the current GOAL;
+- order recommendations;
+- broker, OMS, exchange, or live-order work;
+- performance, edge, can-trade, Product GO, or live signal claims.

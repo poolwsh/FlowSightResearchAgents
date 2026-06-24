@@ -1,85 +1,58 @@
 ---
 name: lrf-falsifier-negative-sample
-description: Use when an LRF hypothesis or worker judgment needs an answer-free adversarial pass that searches for counter evidence, no-entry, boring, failure, and alternative explanations without judging market outcome.
+description: Use when frozen LRF worker traces need an adversarial pass for boring samples, failure cases, alternative explanations, partial evidence, or overfit smart-money language.
 ---
 
-# LRF Falsifier / Negative Sample
+# LRF Falsifier / Negative Sample Pass
 
-## Purpose
+## Core Rule
 
-Attack a Council or worker hypothesis before reveal.
+Falsifier tries to break the hypothesis. It does not decide whether a trade won
+or whether a method has edge.
 
-The falsifier uses bounded known-at evidence to find reasons the hypothesis may
-be weak, overfit, ambiguous, incomplete, or not worth continuing.
+## Inputs
 
-## Non-Goals
+- frozen worker outputs and judgment traces;
+- sealed Director mapping if the GOAL allows post-worker falsification;
+- tool requests/responses;
+- source manifest;
+- docs current truth and rubric.
 
-Do not use this skill to:
+## Attack Checklist
 
-- judge whether the setup won or lost;
-- compute PnL, win-rate, expectancy, performance, edge, can-trade, or Product
-  GO;
-- run reveal, deterministic judge, evaluator, or ledger;
-- repair the hypothesis by writing better market prose;
-- read raw DB, external APIs, app source, release internals, verifier internals,
-  dispatcher internals, endpoint internals, broker, OMS, or live-order paths.
+Check whether:
 
-## Accepted Inputs
+- the same smart-money label also fits boring/no-entry windows;
+- failure-risk windows contradict the candidate story;
+- price action alone explains the move better than the named hypothesis;
+- CVD/delta is partial, truncated, unavailable, or contradictory;
+- orderbook evidence is blocked, low-density, stale, partial, or overread;
+- worker used FVG, liquidity, sweep, or orderbook terms before facts;
+- task labels or Council conclusions leaked to worker;
+- known-at or cutoff discipline was violated.
 
-- Director task packet;
-- source binding ref;
-- hypothesis ref;
-- worker judgment traces, if available;
-- allowed tool responses or allowed tool registry;
-- known-at policy;
-- missing evidence notes;
-- forbidden outputs.
+## Output
 
-## Required Work
+Produce:
 
-Check for:
-
-- counter evidence;
-- no-entry reasons;
-- boring samples;
-- failure samples;
+- counter-evidence findings;
+- no-entry, boring, and failure findings;
 - alternative explanations;
-- missing data families;
-- weak or overly broad rules;
-- partial or truncated evidence used too strongly;
-- one-case overfitting;
-- conflict from trades, OI, funding, or other allowed data families.
+- missing evidence;
+- required repairs;
+- confidence label: `supported | contradicted | partial | insufficient |
+  blocked`;
+- forbidden-claims attestation.
 
-## Required Output
+If evidence is too weak, say so directly. Do not convert caveats into prose
+confidence.
 
-Return output compatible with
-`agent-system/templates/lrf-falsifier-output-template.json`.
+## Forbidden
 
-Minimum fields:
+Falsifier must not:
 
-- `falsifier_output_id`;
-- `director_task_ref`;
-- `hypothesis_ref`;
-- `counter_evidence`;
-- `no_entry_findings`;
-- `boring_sample_findings`;
-- `failure_sample_findings`;
-- `alternative_explanations`;
-- `missing_evidence`;
-- `confidence_label`;
-- `forbidden_future_attestation`.
-
-## Forbidden Output
-
-- market result judgment;
-- win/loss;
-- outcome;
-- reveal;
-- judge result;
-- ledger result;
-- performance;
-- edge;
-- can-trade;
-- Product GO;
-- live signal;
-- broker / OMS / live-order action.
+- judge final market outcome;
+- compute PnL, win rate, expectancy, performance, edge, can-trade, or Product
+  GO;
+- use raw DB, external API, app internals, or hidden future data;
+- invent passive-liquidity conclusions from missing or partial orderbook.
